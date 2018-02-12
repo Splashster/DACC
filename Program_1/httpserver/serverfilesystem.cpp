@@ -137,6 +137,7 @@ void serviceRequest(char *buff, FILE *write_fd){
 	string rep = "";
 	time_t now = time(0);
 	string dt = ctime(&now);
+	char response[MAX_BUFFER_SIZE];
 	int first_pos = getRequest.find("GET");
 	int last_pos;
 	int fileSize = 0;
@@ -155,19 +156,21 @@ void serviceRequest(char *buff, FILE *write_fd){
 	fileSize = getFileSize(contentRequest);
 
 	if(!ifstream(contentRequest)){
-		cerr << contentRequest << "Throw dat 404" << endl;
+		version += "404 Not Found\r\n";
+		content_length = "Content-Length: " + to_string(getFileSize("notFound.txt")) + "\r\n\r\n"; 
+		rep = version + "Date: " + date + "Connection: Closed\r\n" + content_type + content_length + readFile("notFound.txt");
+		strcpy(response, rep.c_str());
 	}else{
-		char response[MAX_BUFFER_SIZE];
+		
 		version += "200 OK\r\n";
 		date = "Date: " + dt;
 		content_length = "Content-Length: " + to_string(fileSize) + "\r\n\r\n"; 
 		rep = version + date + content_type + content_length + readFile(contentRequest);
-		
-		strcpy(response, rep.c_str());
-		
-		cerr << "Contents: " << response << endl;
-		writeSock(response, write_fd);
+		strcpy(response, rep.c_str());	
 	}
+
+	cerr << "Contents: " << response << endl;
+	writeSock(response, write_fd);
 }
 
 
