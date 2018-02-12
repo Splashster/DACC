@@ -27,7 +27,7 @@ void dealocate(char* mem){
 
 int writeSock(char *buff , FILE *write_fd){
 	
-	fprintf(write_fd, "%s", buff);
+	fprintf(write_fd, "%s", "blah from the server");
 	fflush(write_fd);
 }
 
@@ -40,12 +40,13 @@ int readSock(int clisock){
 
 	int done = 0;
 	int result = 1;
-
+	//cerr << "Going in while" << endl;
 	while(!done) {
 		if(!fgets(buff, MAX_BUFFER_SIZE, read_fd)){
 			break;
+			cerr << "Breaking while" << endl;
 		}
-
+		cerr << "Reading " << buff << endl;
 		writeSock(buff, write_fd);
 
 		if(strcmp(buff, "quit\n") == 0 ){
@@ -79,7 +80,7 @@ void handleConnection(int clisock){
 		pthread_t thread;
 		pthread_attr_init(&attribs);
 		pthread_attr_setdetachstate(&attribs, PTHREAD_CREATE_DETACHED);
-		pthread_create(&thread, &attribs, connectHandler, (void*)clisock);
+		pthread_create(&thread, &attribs, connectHandler, (void*)(intptr_t)clisock);
 	}	
 }
 

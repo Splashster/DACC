@@ -64,6 +64,22 @@ int connect_to_server(char* who, int port, ConnectionInfo* con){
 		result = 1;
 		return result;
 	}
+	
+	char buf[1024];
+	int done = 0;
+
+	FILE *fh = fdopen(con->cli_socket_num, "w");
+	fprintf(fh, "%s\r\n",  "blah from the client");
+	
+	while (!done) {
+		if(!fgets(buf, 1024, fh)){
+			break;
+	}
+	cerr << "Reading " << buf << endl;
+	}
+
+	fclose(fh);
+
 	return result;
 }
 
