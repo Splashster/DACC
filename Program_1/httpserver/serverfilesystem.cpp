@@ -114,10 +114,11 @@ string readFile(string fileName){
 	ifstream getContent(fileName, ios::in);
 	string theContents = "";
 	string temp = "";
-
+	cerr << "File size: " << fileSize << endl;
 	while(getline(getContent,temp)){
 		if(!getContent.eof()){
 			theContents += temp + '\n';
+			cerr << "temp " << temp << endl;
 		}
 		else{
 			theContents += temp;
@@ -135,14 +136,14 @@ void serviceRequest(char *buff, FILE *write_fd){
 	int last_pos;
 	
 	if(getRequest.find("HTTP/1.1") == -1){
-		last_pos = getRequest.find("HTTP/1.0");
+		last_pos = getRequest.find(" HTTP/1.0");
 	}else{
-		last_pos = getRequest.find("HTTP/1.1");
+		last_pos = getRequest.find(" HTTP/1.1");
 	}
 
 	cerr << "Current buff: " << buff << "First: " << first_pos << "Last: " << last_pos << endl;
 
-	string contentRequest = getRequest.substr(first_pos + 4,last_pos-first_pos);
+	string contentRequest = getRequest.substr(first_pos + 5,last_pos-first_pos - 5);
 
 	if(!ifstream(contentRequest)){
 		cerr << contentRequest << "Throw dat 404" << endl;
