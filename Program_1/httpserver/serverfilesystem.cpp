@@ -140,7 +140,7 @@ void serviceRequest(char *buff, FILE *write_fd){
 	string date = "";
 	string rep = "";
 	time_t now = time(0);
-	char* dt = ctime(&now);
+	string dt = ctime(&now);
 	int first_pos = getRequest.find("GET");
 	int last_pos;
 	int fileSize = 0;
@@ -163,14 +163,14 @@ void serviceRequest(char *buff, FILE *write_fd){
 	}else{
 		char response[MAX_BUFFER_SIZE];
 		version += "200 OK\r\n";
-		date = "Date: " + dt + "\r\n";
+		date = "Date: " + dt;
 		content_length = "Content-Length: itoa(fileSize)\r\n\r\n"; 
 		rep = version + date + content_type + content_length + readFile(contentRequest);
 		
-		strcpy(contents, rep.c_str());
+		strcpy(response, rep.c_str());
 		
-		cerr << "Contents: " << contents << endl;
-		writeSock(contents, write_fd);
+		cerr << "Contents: " << response << endl;
+		writeSock(response, write_fd);
 	}
 }
 
