@@ -30,11 +30,11 @@
 
 #define PROTOCOL_MESSAGE_SIZE 100
 
-#define MAX_BUFFER_SIZE 1024
+#define MAX_BUFFER_SIZE 120000
 
 #define NUM_SOCKETS_ALLOWED 10
 
-bool keepAlive = false;
+//bool keepAlive = false;
 
 
 
@@ -82,7 +82,8 @@ bool isGetRequest(char *buff){
 
 }
 
-void shouldKeepAlive(char *buff){
+bool shouldKeepAlive(char *buff){
+	bool keepAlive = false;	
 
 	if(strcasestr(buff, "HTTP/1.1") || strcasestr(buff,"Keep-Alive")){
 
@@ -91,7 +92,7 @@ void shouldKeepAlive(char *buff){
 		cerr << "keeping alive" << endl;
 
 	}
-
+	return keepAlive;
 }
 
 
@@ -112,11 +113,11 @@ string readFile(string fileName){
 	ifstream getContent(fileName, ios::in);
 	string theContents = "";
 	string temp = "";
-	cerr << "File size: " << fileSize << endl;
+	//cerr << "File size: " << fileSize << endl;
 	while(getline(getContent,temp)){
 		if(!getContent.eof()){
 			theContents += temp + '\n';
-			cerr << "temp " << temp << endl;
+			//cerr << "temp " << temp << endl;
 		}
 		else{
 			theContents += temp;
@@ -131,7 +132,7 @@ void serviceRequest(char *buff, FILE *write_fd){
 	
 	string getRequest(buff);
 	string version = "";
-	string content_type = "Content-Type: text/html\r\n";
+	string content_type;
 	string content_length = "";
 	string date = "";
 	string rep = "";
@@ -154,19 +155,36 @@ void serviceRequest(char *buff, FILE *write_fd){
 
 	string contentRequest = getRequest.substr(first_pos + 5,last_pos-first_pos - 5);
 	fileSize = getFileSize(contentRequest);
-
-	if(!ifstream(contentRequest)){
-		version += "404 Not Found\r\n";
-		content_length = "Content-Length: " + to_string(getFileSize("notFound.txt")) + "\r\n\r\n"; 
-		rep = version + "Date: " + date + "Connection: Closed\r\n" + content_type + content_length + readFile("notFound.txt");
-		strcpy(response, rep.c_str());
-	}else{
-		
+	
+	try{
+		if(contentRequest.substr(contentRequest.length()-4) == ".jpg"){
+			content_type = "Content-Type: image/jpeg\r\n";
+			cerr << contentRequest.substr(contentRequest.length()-4) << endl;
+		}else{
+			content_type = "Content-Type: text/html\r\n";
+			cerr << contentRequest.substr(contentRequest.length()-4) << endl;
+		}
+	}catch(exception& e){}
+	if(contentRequest == ""){
 		version += "200 OK\r\n";
 		date = "Date: " + dt;
-		content_length = "Content-Length: " + to_string(fileSize) + "\r\n\r\n"; 
-		rep = version + date + content_type + content_length + readFile(contentRequest);
+		content_length = "Content-Length: " + to_string(getFileSize("index.html")) + "\r\n\r\n"; 
+		rep = version + date + content_type + content_length + readFile("index.html");
 		strcpy(response, rep.c_str());	
+	}else{
+		if(!ifstream(contentRequest)){
+			version += "404 Not Found\r\n";
+			content_length = "Content-Length: " + to_string(getFileSize("notFound.txt")) + "\r\n\r\n"; 
+			rep = version + "Date: " + date + "Connection: Closed\r\n" + content_type + content_length + readFile("notFound.txt");
+			strcpy(response, rep.c_str());
+		}else{
+		
+			version += "200 OK\r\n";
+			date = "Date: " + dt;
+			content_length = "Content-Length: " + to_string(fileSize) + "\r\n\r\n"; 
+			rep = version + date + content_type + content_length + readFile(contentRequest);
+			strcpy(response, rep.c_str());	
+		}
 	}
 
 	cerr << "Contents: " << response << endl;
@@ -193,6 +211,8 @@ int readSock(int clisock){
 
 	bool getRequest = false;
 
+	bool keepAlive = false;
+
 
 
 	//cerr << "Going in while" << endl;
@@ -207,25 +227,27 @@ int readSock(int clisock){
 			break;
 
 		}
-
-		cerr << "Reading " << buff << endl;
-
 		
+		cerr << "Reading " << buff << endl;
+		if(strlen(buff) == 2){
+			getRequest = false;	
+		}
 
-		if(getRequest == false){
+		if(getRequest == false && strlen(buff) != 2){
 			getRequest = isGetRequest(buff);
 			if(getRequest == true){
 				serviceRequest(buff, write_fd);
 			}
+			//cerr << "Get Request is: " << getRequest << endl;
 		}
 
-		if(keepAlive == false){shouldKeepAlive(buff);}
+		if(keepAlive == false && getRequest == true){
+			keepAlive = shouldKeepAlive(buff);
+		}
 
-		if(strcmp(buff, "quit\n") == 0 ){
+		cerr << "Get Request is: " << getRequest << "Keep is: " << keepAlive << endl;
 
-			done = 1;
-
-		}else if (getRequest == false) {
+		if (getRequest == false && keepAlive == false) {
 
 		 	done = 1;
 
@@ -261,13 +283,17 @@ void* connectHandler(void* args){
 
 	int clisock = (intptr_t) args;
 
-	while(readSock(clisock) && keepAlive == false);
-	
-	cerr << "QUITTING: " << i++ << endl; 
+	while(readSock(clisock));
+
+	cerr << "Closing socket: " << i++ << endl;
 
 	close(clisock);
 
+	cerr << "Socket Closed: " << i++ << endl; 
+
 	pthread_exit(NULL);
+
+	cerr << "Thread Killed: " << i++ << endl; 
 
 }
 
