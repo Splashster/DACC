@@ -34,7 +34,7 @@
 
 #define NUM_SOCKETS_ALLOWED 10
 
-
+bool keepAlive = false;
 
 
 
@@ -56,7 +56,7 @@ void dealocate(char* mem){
 
 int writeSock(char *buff , FILE *write_fd){
 
-	
+	cerr << "Writing to socket: " << buff << endl;
 
 	fprintf(write_fd, "%s", buff);
 
@@ -82,19 +82,15 @@ bool isGetRequest(char *buff){
 
 }
 
-bool shouldKeepAlive(char *buff){
-
-	bool keep = false;
+void shouldKeepAlive(char *buff){
 
 	if(strcasestr(buff, "HTTP/1.1") || strcasestr(buff,"Keep-Alive")){
 
-		keep = true;
+		keepAlive = true;
 
 		cerr << "keeping alive" << endl;
 
 	}
-
-	return keep;
 
 }
 
@@ -147,10 +143,10 @@ void serviceRequest(char *buff, FILE *write_fd){
 	
 	if(getRequest.find("HTTP/1.1") == -1){
 		last_pos = getRequest.find(" HTTP/1.0");
-		version = "HTTP/1.0";
+		version = "HTTP/1.0 ";
 	}else{
 		last_pos = getRequest.find(" HTTP/1.1");
-		version = "HTTP/1.1";
+		version = "HTTP/1.1 ";
 	}
 
 	cerr << "Current buff: " << buff << "First: " << first_pos << "Last: " << last_pos << endl;
@@ -164,7 +160,7 @@ void serviceRequest(char *buff, FILE *write_fd){
 		char response[MAX_BUFFER_SIZE];
 		version += "200 OK\r\n";
 		date = "Date: " + dt;
-		content_length = "Content-Length: itoa(fileSize)\r\n\r\n"; 
+		content_length = "Content-Length: " + to_string(fileSize) + "\r\n\r\n"; 
 		rep = version + date + content_type + content_length + readFile(contentRequest);
 		
 		strcpy(response, rep.c_str());
@@ -194,8 +190,6 @@ int readSock(int clisock){
 
 	bool getRequest = false;
 
-	bool keepAlive = false;
-
 
 
 	//cerr << "Going in while" << endl;
@@ -206,6 +200,7 @@ int readSock(int clisock){
 
 			done = 1;
 			result = 0;
+			cerr << "I QUIT" << endl;
 			break;
 
 		}
@@ -221,7 +216,7 @@ int readSock(int clisock){
 			}
 		}
 
-		if(keepAlive == false){keepAlive = shouldKeepAlive(buff);}
+		if(keepAlive == false){shouldKeepAlive(buff);}
 
 		if(strcmp(buff, "quit\n") == 0 ){
 
@@ -258,10 +253,14 @@ int readSock(int clisock){
 
 
 void* connectHandler(void* args){
+	
+	int i = 0;
 
 	int clisock = (intptr_t) args;
 
-	while(readSock(clisock));
+	while(readSock(clisock) && keepAlive == false);
+	
+	cerr << "QUITTING: " << i++ << endl; 
 
 	close(clisock);
 
@@ -275,19 +274,20 @@ void* connectHandler(void* args){
 
 void handleConnection(int clisock){
 
-	while(1){
 
+		int i = 0;
 		pthread_attr_t attribs;
 
 		pthread_t thread;
 
 		pthread_attr_init(&attribs);
+		
+		cerr << "Setting up thread: " << i++ << endl;
 
 		pthread_attr_setdetachstate(&attribs, PTHREAD_CREATE_DETACHED);
 
 		pthread_create(&thread, &attribs, connectHandler, (void*)(intptr_t)clisock);
-
-	}	
+		
 
 }
 
