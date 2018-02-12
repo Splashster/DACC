@@ -47,6 +47,16 @@ bool isGetRequest(char *buff){
 	return found;
 }
 
+bool shouldKeepAlive(char *buff){
+	bool keep = false;
+	if(strcasestr(buff, "HTTP/1.1") || strcasestr(buff,"Keep-Alive")){
+		keep = true;
+		cerr << "keeping alive" << endl;
+	}
+	return keep;
+}
+
+
 int readSock(int clisock){
 	char buff[MAX_BUFFER_SIZE];
 	int read_sock = clisock;
@@ -56,6 +66,7 @@ int readSock(int clisock){
 	int done = 0;
 	int result = 1;
 	bool getRequest = false;
+	bool keepAlive = false;
 
 	//cerr << "Going in while" << endl;
 	while(!done) {
@@ -66,12 +77,10 @@ int readSock(int clisock){
 		cerr << "Reading " << buff << endl;
 		
 		if(getRequest == false){getRequest = isGetRequest(buff);}
+
+		if(keepAlive == false){keepAlive = shouldKeepAlive(buff);}
 		
 		writeSock(buff, write_fd);
-
-		if(buff[0]  == '\0'){
-			cerr << "Buff is empty" << endl;
-		}else{cerr << "This is full: " << buff[0] << endl;}
 
 		if(strcmp(buff, "quit\n") == 0 ){
 			done = 1;
@@ -81,6 +90,9 @@ int readSock(int clisock){
 			cerr << "It me" << endl;
 		}	
 	}
+
+	
+	
 
 	fclose(read_fd);
 	fclose(write_fd);
