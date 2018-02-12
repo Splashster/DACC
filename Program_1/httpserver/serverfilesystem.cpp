@@ -22,6 +22,8 @@
 
 #include <string>
 
+#include <cstring>
+
 #include "fileserver.h"
 
 
@@ -132,25 +134,42 @@ string readFile(string fileName){
 void serviceRequest(char *buff, FILE *write_fd){
 	
 	string getRequest(buff);
+	string version = "";
+	string content_type = "Content-Type: text/html\r\n";
+	string content_length = "";
+	string date = "";
+	string rep = "";
+	time_t now = time(0);
+	char* dt = ctime(&now);
 	int first_pos = getRequest.find("GET");
 	int last_pos;
+	int fileSize = 0;
 	
 	if(getRequest.find("HTTP/1.1") == -1){
 		last_pos = getRequest.find(" HTTP/1.0");
+		version = "HTTP/1.0";
 	}else{
 		last_pos = getRequest.find(" HTTP/1.1");
+		version = "HTTP/1.1";
 	}
 
 	cerr << "Current buff: " << buff << "First: " << first_pos << "Last: " << last_pos << endl;
 
 	string contentRequest = getRequest.substr(first_pos + 5,last_pos-first_pos - 5);
+	fileSize = getFileSize(contentRequest);
 
 	if(!ifstream(contentRequest)){
 		cerr << contentRequest << "Throw dat 404" << endl;
 	}else{
-		char contents[MAX_BUFFER_SIZE];
-	
-		(contents, readFile(contentRequest).c_str());
+		char response[MAX_BUFFER_SIZE];
+		version += "200 OK\r\n";
+		date = "Date: " + dt + "\r\n";
+		content_length = "Content-Length: itoa(fileSize)\r\n\r\n"; 
+		rep = version + date + content_type + content_length + readFile(contentRequest);
+		
+		strcpy(contents, rep.c_str());
+		
+		cerr << "Contents: " << contents << endl;
 		writeSock(contents, write_fd);
 	}
 }
@@ -183,11 +202,11 @@ int readSock(int clisock){
 
 	while(!done) {
 
-		if(!fgets(buff, MAX_BUFFER_SIZE, read_fd)){
+		if(fgets(buff, MAX_BUFFER_SIZE, read_fd) == NULL){
 
+			done = 1;
+			result = 0;
 			break;
-
-			cerr << "Breaking while" << endl;
 
 		}
 
