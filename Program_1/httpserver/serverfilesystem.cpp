@@ -27,10 +27,25 @@ void dealocate(char* mem){
 
 int writeSock(char *buff , FILE *write_fd){
 	
-	fprintf(write_fd, "%s", "blah from the server");
+	fprintf(write_fd, "%s,%s,%s,%s,%s,%s,%s,%s", "<!DOCTYPE html>",
+"<html>",
+"<body>",
+"<p>This is a paragraph.</p>",
+"<p>This is a paragraph.</p>",
+"<p>This is a paragraph.</p>",
+"</body>",
+"</html>");
 	fflush(write_fd);
 }
 
+bool isGetRequest(char *buff){
+	bool found = false;
+	if(strstr(buff,"GET")){
+		found = true;
+		cerr << "get request incoming" << endl;
+	}
+	return found;
+}
 
 int readSock(int clisock){
 	char buff[MAX_BUFFER_SIZE];
@@ -40,6 +55,8 @@ int readSock(int clisock){
 
 	int done = 0;
 	int result = 1;
+	bool getRequest = false;
+
 	//cerr << "Going in while" << endl;
 	while(!done) {
 		if(!fgets(buff, MAX_BUFFER_SIZE, read_fd)){
@@ -47,13 +64,17 @@ int readSock(int clisock){
 			cerr << "Breaking while" << endl;
 		}
 		cerr << "Reading " << buff << endl;
+		
+		if(getRequest == false){getRequest = isGetRequest(buff);}
+		
 		writeSock(buff, write_fd);
 
 		if(strcmp(buff, "quit\n") == 0 ){
 			done = 1;
-		}else if (strcmp( buff, "shutdown\n") == 0) {
+		}else if (getRequest == false) {
 		 	done = 1;
 			result = 0;
+			cerr << "It me" << endl;
 		}	
 	}
 
