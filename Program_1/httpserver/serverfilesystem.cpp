@@ -69,6 +69,10 @@ int readSock(int clisock){
 		
 		writeSock(buff, write_fd);
 
+		if(buff[0]  == '\0'){
+			cerr << "Buff is empty" << endl;
+		}else{cerr << "This is full: " << buff[0] << endl;}
+
 		if(strcmp(buff, "quit\n") == 0 ){
 			done = 1;
 		}else if (getRequest == false) {
