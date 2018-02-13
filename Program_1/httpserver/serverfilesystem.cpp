@@ -38,7 +38,7 @@ extern "C" {
 
 #define PROTOCOL_MESSAGE_SIZE 100
 
-#define MAX_BUFFER_SIZE 120000
+#define MAX_BUFFER_SIZE 1024
 
 #define NUM_SOCKETS_ALLOWED 10
 
@@ -46,7 +46,7 @@ static int html_out(lua_State *L);
 
 const char *Header = "Message";
 
-const char *luaMessage;
+char *luaMessage;
 
 
 
@@ -199,13 +199,11 @@ void runLua(map<string,string> items){
 	lua_pushcclosure(L, html_out, 1);
 	
 	lua_setglobal(L, "html_out");
-	cerr << "Creat here2" << endl;
 	result = lua_pcall(L, 0, 1, 0);
 	if (result) {
 	    cerr << "Failed to run script: " << lua_tostring(L, -1) << endl;
 	    exit(1);
 	}
-
 	lua_pop(L, 1);
     	lua_close(L);
 }
@@ -215,36 +213,81 @@ static int html_out(lua_State *L) {
 	     a closure. */
 	  int *fd = (int *) lua_touserdata(L, lua_upvalueindex(1));
 	  // Now get the single argument passed by the call in the Lua script.
-	  const char *msg = (char *) lua_tostring(L, -1);
+	  char *msg = (char *) lua_tostring(L, -1);
 	  // Now, write the argument using the file descriptor upvalue.
 	  write(*fd, "C++ : Writing passed argument: ", 31);
 	  write(*fd, msg, strlen(msg));
 	  write(*fd, "\n", 1);
-	  
-	  while(!locked){
-		locked = true;
-	  	luaMessage = msg;
-		
-	  }
+	  luaMessage = msg;
+
 
 	  return 0;	
+}
+
+string generateHTML(char* message){
+	string htmlMessage = "";
+	string mess(message);
+	
+	htmlMessage = "<!DOCTYPE html>\r\n<html>\r\n<body>\r\n<h1 style='background-color:green;'>"+mess+"</h1>\r\n</body>\r\n</html>";
+
+	return htmlMessage;
+}
+
+void goodRequest(string version, string dt, string fileName, bool generatehtml, FILE *write_fd){
+	char response[MAX_BUFFER_SIZE];
+	string content_type = "Content-Type: text/html\r\n";
+	string content_length = "";
+	string date = "";
+	string html = generateHTML(luaMessage);
+	string rep = "";
+
+	
+	if(generatehtml){
+		cerr << "HERE 1" << luaMessage << endl;
+		version += "200 OK\r\n";
+		date = "Date: " + dt;
+		content_length = "Content-Length: " + to_string(html.length()) + "\r\n\r\n"; 
+		rep = version + date + content_type + content_length + html;
+		strcpy(response, rep.c_str());	
+	}else{
+		cerr << "HERE 2 " << endl;
+		version += "200 OK\r\n";
+		date = "Date: " + dt;
+		content_length = "Content-Length: " + to_string(getFileSize(fileName)) + "\r\n\r\n"; 
+		rep = version + date + content_type + content_length + readFile(fileName);
+		strcpy(response, rep.c_str());	
+		cerr << "ReSPONSE: " << response << endl;
+	}
+
+	writeSock(response, write_fd);
+}
+
+void badRequest(string version, string dt, FILE* write_fd){
+	char response[MAX_BUFFER_SIZE];	
+	string content_type = "Content-Type: text/html\r\n";
+	string content_length = "";
+	string date = "";
+	string rep = "";
+	
+
+	version += "404 Not Found\r\n";
+	content_length = "Content-Length: " + to_string(getFileSize("notFound.txt")) + "\r\n\r\n"; 	rep = version + "Date: " + date + "Connection: Closed\r\n" + content_type + content_length + readFile("notFound.txt");
+	strcpy(response, rep.c_str());
+
+	writeSock(response, write_fd);
 }
 
 void serviceRequest(char *buff, FILE *write_fd){
 	
 	string getRequest(buff);
 	string version = "";
-	string content_type = "Content-Type: text/html\r\n";
-	string content_length = "";
-	string date = "";
-	string rep = "";
 	time_t now = time(0);
 	string dt = ctime(&now);
 	map<string,string> items;
 	char response[MAX_BUFFER_SIZE];
 	int first_pos = getRequest.find("GET");
 	int last_pos;
-	int fileSize = 0;
+	//int fileSize = 0;
 		
 	if(getRequest.find("HTTP/1.1") != -1){
 		last_pos = getRequest.find(" HTTP/1.1");
@@ -257,7 +300,9 @@ void serviceRequest(char *buff, FILE *write_fd){
 	cerr << "Current buff: " << buff << "First: " << first_pos << "Last: " << last_pos << endl;
 
 	string contentRequest = getRequest.substr(first_pos + 5,last_pos-first_pos - 5);
-	fileSize = getFileSize(contentRequest);
+
+	cerr << "HERE Ri " << endl;
+	//fileSize = getFileSize(contentRequest);
 	if(getRequest.find("singup.lua?") != -1){
 		try{
 			first_pos = getFirstPosition(getRequest,"?firstname");
@@ -265,35 +310,22 @@ void serviceRequest(char *buff, FILE *write_fd){
 			first_pos = getRequest.find("?firstname");
 			items = parseForm(getRequest.substr(first_pos+1, last_pos-first_pos-1));
 			cerr << "Firstname: " << items["firstname"] << "Lastname: " << items["lastname"] << endl;			
-			html_OUT(items);
-			cerr << "I GOT IT: " << luaMessage << endl;
+			runLua(items);
+			goodRequest(version, dt, "", true, write_fd);
 		}catch(exception& e){}
-	}
-
-	if(contentRequest == ""){
-		version += "200 OK\r\n";
-		date = "Date: " + dt;
-		content_length = "Content-Length: " + to_string(getFileSize("index.html")) + "\r\n\r\n"; 
-		rep = version + date + content_type + content_length + readFile("index.html");
-		strcpy(response, rep.c_str());	
+	}else if(contentRequest == ""){
+		cerr << "next" << endl;
+		goodRequest(version, dt, "index.html", false, write_fd);
 	}else{
 		if(!ifstream(contentRequest)){
-			version += "404 Not Found\r\n";
-			content_length = "Content-Length: " + to_string(getFileSize("notFound.txt")) + "\r\n\r\n"; 
-			rep = version + "Date: " + date + "Connection: Closed\r\n" + content_type + content_length + readFile("notFound.txt");
-			strcpy(response, rep.c_str());
+			badRequest(version, dt, write_fd);
 		}else{
-		
-			version += "200 OK\r\n";
-			date = "Date: " + dt;
-			content_length = "Content-Length: " + to_string(fileSize) + "\r\n\r\n"; 
-			rep = version + date + content_type + content_length + readFile(contentRequest);
-			strcpy(response, rep.c_str());	
+			goodRequest(version, dt, contentRequest, false, write_fd);
 		}
 	}
 
 	cerr << "Contents: " << response << endl;
-	writeSock(response, write_fd);
+	
 }
 
 
