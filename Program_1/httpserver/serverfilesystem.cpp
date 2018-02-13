@@ -164,13 +164,15 @@ string readFile(string fileName){
 	return theContents;
 }
 
-void html_OUT(string fileName){
+void html_OUT(map<string,string> items){
+	int ret, result;
+	string firstname = items["firstname"], lastname = items["lastname"];
 
-	/*lua_State *L = luaL_newstate();
+	lua_State *L = luaL_newstate();
 
     	luaL_openlibs(L);
 
-	ret = luaL_loadfile(L, fileName);
+	ret = luaL_loadfile(L, "signup.lua");
 	
 	if (ret) {
 		cerr << "Couldn't load file: " << lua_tostring(L, -1) << endl;
@@ -179,9 +181,42 @@ void html_OUT(string fileName){
 	
 	lua_newtable(L);
 
-	lua_pushstring(L, "name");
-    	lua_pushstring(L, "Sally");*/
+	lua_pushstring(L, "firstname");
+    	lua_pushstring(L, firstname.c_str());
+	//lua_pushstring(L, lastname);
+    	//lua_pushstring(L, items["lastname"]);
 
+	lua_rawset(L, -3);
+	lua_setglobal(L, "Info");
+
+	int *ud = (int *) lua_newuserdata(L, sizeof(int));
+    	*ud = 1;
+
+	lua_pushcclosure(L, c_print, 1);
+
+	lua_setglobal(L, "c_print");
+
+	result = lua_pcall(L, 0, 1, 0);
+	if (result) {
+	    cerr << "Failed to run script: " << lua_tostring(L, -1) << endl;
+	    exit(1);
+	}
+
+	lua_pop(L, 1);
+    	lua_close(L);
+}
+
+static int c_print(lua_State *L) {
+	  /* just to show that I can get the upvalue.  This is what makes this function
+	     a closure. */
+	  int *fd = (int *) lua_touserdata(L, lua_upvalueindex(1));
+	  // Now get the single argument passed by the call in the Lua script.
+	  const char *msg = (char *) lua_tostring(L, -1);
+	  // Now, write the argument using the file descriptor upvalue.
+	  write(*fd, "C++ : Writing passed argument: ", 31);
+	  write(*fd, msg, strlen(msg));
+	  write(*fd, "\n", 1);
+	  return 0;	
 }
 
 void serviceRequest(char *buff, FILE *write_fd){
@@ -212,14 +247,14 @@ void serviceRequest(char *buff, FILE *write_fd){
 
 	string contentRequest = getRequest.substr(first_pos + 5,last_pos-first_pos - 5);
 	fileSize = getFileSize(contentRequest);
-	if(getRequest.find("singUP.lua?") != -1){
+	if(getRequest.find("singup.lua?") != -1){
 		try{
 			first_pos = getFirstPosition(getRequest,"?firstname");
 			map<string,string> items;
 			first_pos = getRequest.find("?firstname");
 			items = parseForm(getRequest.substr(first_pos+1, last_pos-first_pos-1));
 			cerr << "Firstname: " << items["firstname"] << "Lastname: " << items["lastname"] << endl;			
-			html_OUT(contentRequest);
+			html_OUT(items);
 		}catch(exception& e){}
 	}
 
