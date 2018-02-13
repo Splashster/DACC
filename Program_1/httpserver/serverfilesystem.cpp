@@ -1,3 +1,9 @@
+extern "C" {
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
+}
+
 #include <string.h>
 
 #include <stdlib.h>
@@ -24,6 +30,8 @@
 
 #include <cstring>
 
+#include <map>
+
 #include "fileserver.h"
 
 
@@ -34,23 +42,15 @@
 
 #define NUM_SOCKETS_ALLOWED 10
 
-//bool keepAlive = false;
+static int c_print(lua_State *L);
+
+const char *Header = "Message";
 
 
 
 
 
 using namespace std;
-
-
-
-//Deallocates allocated memory
-
-void dealocate(char* mem){
-
-	delete[] mem;
-
-}
 
 
 
@@ -95,6 +95,43 @@ bool shouldKeepAlive(char *buff){
 	return keepAlive;
 }
 
+string getVersion(string request){
+	string version = "";
+
+	if(request.find("HTTP/1.1") != -1){
+		version = "HTTP/1.1 ";
+	}else{
+		version = "HTTP/1.0 ";
+	}
+	return version;
+}
+
+int getFirstPosition(string request, string item){
+	int first_pos = 0;
+	first_pos = request.find(item);
+	return first_pos;
+}
+
+int getLastPosition(string request, string item){
+	int last_pos = 0;
+	last_pos = request.find(item);
+	return last_pos;
+}
+
+map<string,string> parseForm(string request){
+	map<string,string> parsedItems;
+	int first_pos, last_pos;
+
+	first_pos = getFirstPosition(request, "firstname=");
+	last_pos = getLastPosition(request, "&lastname");
+	parsedItems["firstname"] = request.substr(first_pos+10,last_pos-first_pos-10);
+	
+	first_pos = getFirstPosition(request, "lastname=");
+	last_pos = getLastPosition(request, " HTTP");
+	parsedItems["lastname"] = request.substr(first_pos+9,last_pos-first_pos-9);
+
+	return parsedItems;
+}
 
 //Gets size of a specified file.
 int getFileSize(string fileName){
@@ -127,44 +164,65 @@ string readFile(string fileName){
 	return theContents;
 }
 
+void html_OUT(string fileName){
+
+	/*lua_State *L = luaL_newstate();
+
+    	luaL_openlibs(L);
+
+	ret = luaL_loadfile(L, fileName);
+	
+	if (ret) {
+		cerr << "Couldn't load file: " << lua_tostring(L, -1) << endl;
+		exit(1);
+   	}
+	
+	lua_newtable(L);
+
+	lua_pushstring(L, "name");
+    	lua_pushstring(L, "Sally");*/
+
+}
 
 void serviceRequest(char *buff, FILE *write_fd){
 	
 	string getRequest(buff);
 	string version = "";
-	string content_type;
+	string content_type = "Content-Type: text/html\r\n";
 	string content_length = "";
 	string date = "";
 	string rep = "";
 	time_t now = time(0);
 	string dt = ctime(&now);
+	map<string,string> items;
 	char response[MAX_BUFFER_SIZE];
 	int first_pos = getRequest.find("GET");
 	int last_pos;
 	int fileSize = 0;
-	
-	if(getRequest.find("HTTP/1.1") == -1){
-		last_pos = getRequest.find(" HTTP/1.0");
-		version = "HTTP/1.0 ";
-	}else{
+		
+	if(getRequest.find("HTTP/1.1") != -1){
 		last_pos = getRequest.find(" HTTP/1.1");
-		version = "HTTP/1.1 ";
+		version = getVersion(getRequest);
+	}else{
+		last_pos = getRequest.find(" HTTP/1.0");
+		version = getVersion(getRequest);
 	}
 
 	cerr << "Current buff: " << buff << "First: " << first_pos << "Last: " << last_pos << endl;
 
 	string contentRequest = getRequest.substr(first_pos + 5,last_pos-first_pos - 5);
 	fileSize = getFileSize(contentRequest);
-	
-	try{
-		if(contentRequest.substr(contentRequest.length()-4) == ".jpg"){
-			content_type = "Content-Type: image/jpeg\r\n";
-			cerr << contentRequest.substr(contentRequest.length()-4) << endl;
-		}else{
-			content_type = "Content-Type: text/html\r\n";
-			cerr << contentRequest.substr(contentRequest.length()-4) << endl;
-		}
-	}catch(exception& e){}
+	if(getRequest.find("singUP.lua?") != -1){
+		try{
+			first_pos = getFirstPosition(getRequest,"?firstname");
+			map<string,string> items;
+			first_pos = getRequest.find("?firstname");
+			items = parseForm(getRequest.substr(first_pos+1, last_pos-first_pos-1));
+			cerr << "Firstname: " << items["firstname"] << "Lastname: " << items["lastname"] << endl;			
+			html_OUT(contentRequest);
+		}catch(exception& e){}
+	}
+
 	if(contentRequest == ""){
 		version += "200 OK\r\n";
 		date = "Date: " + dt;
@@ -292,8 +350,6 @@ void* connectHandler(void* args){
 	cerr << "Socket Closed: " << i++ << endl; 
 
 	pthread_exit(NULL);
-
-	cerr << "Thread Killed: " << i++ << endl; 
 
 }
 
