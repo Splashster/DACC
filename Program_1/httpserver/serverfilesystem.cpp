@@ -42,10 +42,11 @@ extern "C" {
 
 #define NUM_SOCKETS_ALLOWED 10
 
-static int c_print(lua_State *L);
+static int html_out(lua_State *L);
 
 const char *Header = "Message";
 
+const char *luaMessage;
 
 
 
@@ -164,7 +165,7 @@ string readFile(string fileName){
 	return theContents;
 }
 
-void html_OUT(map<string,string> items){
+void runLua(map<string,string> items){
 	int ret, result;
 	string firstname = items["firstname"], lastname = items["lastname"];
 
@@ -183,8 +184,11 @@ void html_OUT(map<string,string> items){
 
 	lua_pushstring(L, "firstname");
     	lua_pushstring(L, firstname.c_str());
-	//lua_pushstring(L, lastname);
-    	//lua_pushstring(L, items["lastname"]);
+
+	lua_rawset(L, -3);
+
+	lua_pushstring(L, "lastname");
+    	lua_pushstring(L, lastname.c_str());
 
 	lua_rawset(L, -3);
 	lua_setglobal(L, "Info");
@@ -192,10 +196,10 @@ void html_OUT(map<string,string> items){
 	int *ud = (int *) lua_newuserdata(L, sizeof(int));
     	*ud = 1;
 
-	lua_pushcclosure(L, c_print, 1);
-
-	lua_setglobal(L, "c_print");
-
+	lua_pushcclosure(L, html_out, 1);
+	
+	lua_setglobal(L, "html_out");
+	cerr << "Creat here2" << endl;
 	result = lua_pcall(L, 0, 1, 0);
 	if (result) {
 	    cerr << "Failed to run script: " << lua_tostring(L, -1) << endl;
@@ -206,7 +210,7 @@ void html_OUT(map<string,string> items){
     	lua_close(L);
 }
 
-static int c_print(lua_State *L) {
+static int html_out(lua_State *L) {
 	  /* just to show that I can get the upvalue.  This is what makes this function
 	     a closure. */
 	  int *fd = (int *) lua_touserdata(L, lua_upvalueindex(1));
@@ -216,6 +220,13 @@ static int c_print(lua_State *L) {
 	  write(*fd, "C++ : Writing passed argument: ", 31);
 	  write(*fd, msg, strlen(msg));
 	  write(*fd, "\n", 1);
+	  
+	  while(!locked){
+		locked = true;
+	  	luaMessage = msg;
+		
+	  }
+
 	  return 0;	
 }
 
@@ -255,6 +266,7 @@ void serviceRequest(char *buff, FILE *write_fd){
 			items = parseForm(getRequest.substr(first_pos+1, last_pos-first_pos-1));
 			cerr << "Firstname: " << items["firstname"] << "Lastname: " << items["lastname"] << endl;			
 			html_OUT(items);
+			cerr << "I GOT IT: " << luaMessage << endl;
 		}catch(exception& e){}
 	}
 
