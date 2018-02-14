@@ -94,13 +94,19 @@ map<string,string> parseForm(string request){
 	map<string,string> parsedItems;
 	int first_pos, last_pos;
 
-	first_pos = getFirstPosition(request, "firstname=");
-	last_pos = getLastPosition(request, "&lastname");
-	parsedItems["firstname"] = request.substr(first_pos+10,last_pos-first_pos-10);
+
+	if(request.find("firstname=") == -1 || request.find("&lastname=") == -1){
+		parsedItems["firstname"] = "";
+		parsedItems["lastname"] = "";
+	}else{
+		first_pos = getFirstPosition(request, "firstname=");
+		last_pos = getLastPosition(request, "&lastname");
+		parsedItems["firstname"] = request.substr(first_pos+10,last_pos-first_pos-10);
 	
-	first_pos = getFirstPosition(request, "lastname=");
-	last_pos = getLastPosition(request, " HTTP");
-	parsedItems["lastname"] = request.substr(first_pos+9,last_pos-first_pos-9);
+		first_pos = getFirstPosition(request, "lastname=");
+		last_pos = getLastPosition(request, " HTTP");
+		parsedItems["lastname"] = request.substr(first_pos+9,last_pos-first_pos-9);
+	}
 
 	return parsedItems;
 }
@@ -202,7 +208,7 @@ static int html_out(lua_State *L) {
 	  char *msg = (char *) lua_tostring(L, -1);
 	  write(*fd, msg, strlen(msg));
 	  luaMessage = msg;
-
+	  write(*fd, "\n", 1);
 	  return 0;	
 }
 
@@ -264,20 +270,43 @@ void serviceRequest(char *buff, FILE *write_fd, Http_intel htpi){
 	string version = "";
 	time_t now = time(0);
 	string dt = ctime(&now);
+	string requestedFile = "";
 	map<string,string> items;
 	char response[MAX_BUFFER_SIZE];
 	int first_pos, last_pos;	
 
 	
-	if(htpi.document.find("signup.lua?") != -1){
-		try{
-			first_pos = getFirstPosition(htpi.document,"?firstname");
-			map<string,string> items;
-			first_pos = htpi.document.find("?firstname");
-			items = parseForm(htpi.document.substr(first_pos+1, last_pos-first_pos-1));		
-			runLua(items);
-			goodRequest(htpi.version, dt, "", true, write_fd);
-		}catch(exception& e){}
+	if(htpi.document.find(".lua") != -1 || htpi.document.find(".luac") != -1){		
+		if(htpi.document.find(".luac") != -1){
+			last_pos = getLastPosition(htpi.document,".luac");
+			if(htpi.document.substr(last_pos+5, last_pos-6)  != " " && htpi.document.substr(last_pos+5, last_pos-6)  != "?"){
+				requestedFile = "";
+			}
+ 			else{
+				requestedFile = htpi.document.substr(0, last_pos+5);
+			}
+		}else if(htpi.document.find(".lua") != -1){
+			last_pos = getLastPosition(htpi.document,".lua");
+			if(htpi.document.substr(last_pos+4, last_pos-5)  != "" && htpi.document.substr(last_pos+4, last_pos-5)  != "?"){
+				requestedFile = "";
+			}
+ 			else{
+				requestedFile = htpi.document.substr(0, last_pos+4);
+			}
+		}
+
+		if(!ifstream(requestedFile)){
+			badRequest(htpi.version, dt, write_fd);
+		}else{
+			try{
+				first_pos = getFirstPosition(htpi.document,"?firstname");
+				map<string,string> items;
+				first_pos = htpi.document.find("?firstname");
+				items = parseForm(htpi.document.substr(first_pos+1, last_pos-first_pos-1));		
+				runLua(items);
+				goodRequest(htpi.version, dt, "", true, write_fd);
+			}catch(exception& e){}
+		}
 	}else if(htpi.document == ""){
 		goodRequest(htpi.version, dt, "index.html", false, write_fd);
 	}else{
