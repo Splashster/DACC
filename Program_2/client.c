@@ -36,7 +36,7 @@ int main(int argc, char* argv[]){
 						if(line[0] != '\n'){
 							transactionType = strtok(line, " ");
 							if(strcasecmp(transactionType, "credit") != 0 && strcasecmp(transactionType, "debit") != 0  && strcasecmp(transactionType, "transfer") != 0){
-								printf("Invalid Transaction\n");
+								printf("Invalid transaction type. Only Credit, Debit, or Transfer transactions allowed.\n");
 							}else{
 								if(strcasecmp(transactionType, "credit") == 0){
 									accountNum1 = strtok(NULL, " ");
