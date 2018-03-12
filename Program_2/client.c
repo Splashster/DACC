@@ -41,16 +41,16 @@ int main(int argc, char* argv[]){
 								if(strcasecmp(transactionType, "credit") == 0){
 									accountNum1 = strtok(NULL, " ");
 									amount = atoi(strtok(NULL, " "));
-									printf("Ready> credit %s %i\n", accountNum1, itoa(amount));
+									printf("Ready> credit %s %i\n", accountNum1, amount);
 								}else if(strcasecmp(transactionType, "debit") == 0){
 									accountNum1 = strtok(NULL, " ");
 									amount = atoi(strtok(NULL, " "));
-									printf("Ready> debit %s %i\n", accountNum1, itoa(amount));
+									printf("Ready> debit %s %i\n", accountNum1, amount);
 								}else{
 									accountNum1 = strtok(NULL, " ");
 									accountNum2 = strtok(NULL, " ");
 									amount = atoi(strtok(NULL, " "));
-									printf("Ready> transfer %s %i\n", accountNum1, accountNum2, itoa(amount));
+									printf("Ready> transfer %s %i\n", accountNum1, accountNum2, amount);
 								}
 
 			     			}
