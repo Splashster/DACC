@@ -40,9 +40,9 @@ int main(int argc, char* argv[]){
 								accountNum = strtok(NULL, " ");
 								ammount = strtok(NULL, " ");
 								if(strcasecmp(transactionType, "credit") == 0){
-									printf("You want to credit: %i to %s\n", ammount, accountNum);
+									printf("Ready> credit %s %i\n", accountNum, ammount);
 								}else{
-									printf("You want to transfer: %i to %s\n", ammount, accountNum);
+									printf("Ready> transfer %s %i\n", accountNum, ammount);
 								}
 		
 			     			}
