@@ -1,0 +1,4 @@
+credit A1234 100
+transfer A123 444
+Transfer Asdsd123 123213
+CredIt BBBBB123 1230120301230
