@@ -14,15 +14,46 @@ int doesFileExist(char* filename){
 
 int main(int argc, char* argv[]){
 	CLIENT *remote_client;
-	char* line = NULL;
+	char* input = NULL;
 	char* transactionType;
 	char* accountNum1;
 	char* accountNum2;
+	//char* buffer;
 	int amount = 0;
+	int count = 0;
 	size_t len = 0;
 	FILE *file;
 
-	if(argc < 1){
+	printf("Ready>");
+	getline(&input, &len, stdin);
+
+	printf("%s", input);
+
+
+
+	/*if(argc < 3){
+		printf("Missing arguments!\n");
+	}else{
+		if(strcasecmp(transactionType, "credit") != 0 && strcasecmp(transactionType, "debit") != 0  && strcasecmp(transactionType, "transfer") != 0){
+			printf("Invalid transaction type. Only Credit, Debit, or Transfer transactions allowed.\n");
+		}else{
+			if(strcasecmp(transactionType, "credit") == 0){
+				accountNum1 = strtok(NULL, " ");
+				amount = atoi(strtok(NULL, " "));
+				printf("Ready> credit %s %i\n", accountNum1, amount);
+			}else if(strcasecmp(transactionType, "debit") == 0){
+				accountNum1 = strtok(NULL, " ");
+				amount = atoi(strtok(NULL, " "));
+				printf("Ready> debit %s %i\n", accountNum1, amount);
+			}else{
+				accountNum1 = strtok(NULL, " ");
+				accountNum2 = strtok(NULL, " ");
+				amount = atoi(strtok(NULL, " "));
+				printf("Ready> transfer %s %i\n", accountNum1, accountNum2, amount);
+			}
+	}*/
+
+	/*if(argc < 1){
 			printf("Missing filename");
 	}else{
 			if(!doesFileExist(argv[1])){
@@ -60,5 +91,5 @@ int main(int argc, char* argv[]){
 					}
 					fclose(file);
 				}
-			}
+			}*/
 }
