@@ -16,8 +16,9 @@ int main(int argc, char* argv[]){
 	CLIENT *remote_client;
 	char* line = NULL;
 	char* transactionType;
-	char* accountNum;
-	char* ammount;
+	char* accountNum1;
+	char* accountNum2;
+	int amount;
 	size_t len = 0;
 	FILE *file;
 
@@ -34,20 +35,27 @@ int main(int argc, char* argv[]){
 					{
 						if(line[0] != '\n'){
 							transactionType = strtok(line, " ");
-							if(strcasecmp(transactionType, "credit") != 0 && strcasecmp(transactionType, "transfer") != 0){
+							if(strcasecmp(transactionType, "credit") != 0 && strcasecmp(transactionType, "debit") != 0  && strcasecmp(transactionType, "transfer") != 0){
 								printf("Invalid Transaction\n");
 							}else{
-								accountNum = strtok(NULL, " ");
-								ammount = strtok(NULL, " ");
 								if(strcasecmp(transactionType, "credit") == 0){
-									printf("Ready> credit %s %i\n", accountNum, ammount);
+									accountNum1 = strtok(NULL, " ");
+									amount = atoi(strtok(NULL, " "));
+									printf("Ready> credit %s %i\n", accountNum1, itoa(amount));
+								}else if(strcasecmp(transactionType, "debit") == 0){
+									accountNum1 = strtok(NULL, " ");
+									amount = atoi(strtok(NULL, " "));
+									printf("Ready> debit %s %i\n", accountNum1, itoa(amount));
 								}else{
-									printf("Ready> transfer %s %i\n", accountNum, ammount);
+									accountNum1 = strtok(NULL, " ");
+									accountNum2 = strtok(NULL, " ");
+									amount = atoi(strtok(NULL, " "));
+									printf("Ready> transfer %s %i\n", accountNum1, accountNum2, itoa(amount));
 								}
-		
+
 			     			}
 						}
-							
+
 						}
 					}
 					fclose(file);
