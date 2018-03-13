@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sqlite3.h> 
+#include <sqlite3.h>
 #include <errno.h>
 
 void closeDB(sqlite3* bank1_db, sqlite3* bank2_db){
@@ -49,7 +49,7 @@ void initilizeDB(sqlite3 *db, char* filename, char* bank){
 	int balance;
 	size_t len = 0;
 
-	printf("bank: %s file: %s\n", bank, filename);
+	//printf("bank: %s file: %s\n", bank, filename);
 
 	sprintf(sql, "CREATE TABLE %s (ID INT PRIMARY KEY NOT NULL, ACCOUNT_NUMBER INT NOT NULL, TRANSACTION_TYPE VARCHAR(10) NOT NULL, TRANSACTION_AMOUNT DECIMAL(10,2) NOT NULL, CURRENT_BALANCE DECIMAL(10,2) NOT NULL)", bank);
 	//puts(sql);
@@ -58,7 +58,7 @@ void initilizeDB(sqlite3 *db, char* filename, char* bank){
 	sendQuery(db, sql);
 
 	printf("Failing here\n");
-	printf("%s\n", filename);
+	//printf("%s\n", filename);
    	file = fopen(filename, "r");
    //	printf("Failing here3\n");
 	if(!file){
@@ -66,7 +66,7 @@ void initilizeDB(sqlite3 *db, char* filename, char* bank){
 	}
 	else{
 		//printf("Failing here5\n");
-		//printf("Working on files");
+		//printf("Working on fileshttps://www.youtube.com/watch?v=rcDizlmjNQY");
 		while(getline(&line, &len, file) != -1)
 		{
 			printf("Next\n");
@@ -79,7 +79,7 @@ void initilizeDB(sqlite3 *db, char* filename, char* bank){
 				balance = atoi(strtok(NULL, " "));
 				//printf("broke\n");
 	   			sprintf(sql,"INSERT INTO %s (ID, ACCOUNT_NUMBER, TRANSACTION_TYPE, TRANSACTION_AMOUNT, CURRENT_BALANCE) VALUES (%i, '%s', '%s', %i, %i)",bank, id, accountNum ,transactionType, amount, balance);
-	   			
+
 	   			printf("%s\n",sql);
 	   			sendQuery(db, sql);
 	   		}
@@ -91,7 +91,7 @@ void initilizeDB(sqlite3 *db, char* filename, char* bank){
 }
 
 void startDB(sqlite3* bank1_db, sqlite3* bank2_db){
-	
+
 	char *zErrMsg = 0;
 	int result;
 
