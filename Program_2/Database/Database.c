@@ -41,7 +41,7 @@ void initilizeDB(sqlite3 *db, char* filename, char* bank){
 	char sql[100];
 	int result;
 	FILE *file;
-	char* line;
+	char* line = NULL;
 	int id;
 	char* accountNum;
 	char* transactionType;
