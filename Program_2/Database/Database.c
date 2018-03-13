@@ -87,6 +87,7 @@ void initilizeDB(sqlite3 *db, char* filename, char* bank){
 	   	fclose(file);
 	   	printf("done\n");
 	}
+	free(line);
 	printf("complete\n");
 }
 
