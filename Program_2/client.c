@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <VirtualBank.h>
 #include <rpc/rpc.h>
 
 
@@ -18,7 +19,6 @@ int main(int argc, char* argv[]){
 	char* transactionType;
 	char* accountNum1;
 	char* accountNum2;
-	//char* buffer;
 	int amount = 0;
 	int count = 0;
 	size_t len = 0;
@@ -40,15 +40,18 @@ int main(int argc, char* argv[]){
 							if(strcasecmp(transactionType, "credit") == 0){
 								accountNum1 = strtok(NULL, " ");
 								amount = atoi(strtok(NULL, " "));
+								VB_credit(accountNum1, amount);
 								printf("Added %i dollars to account %s\n", amount, accountNum1);
 							}else if(strcasecmp(transactionType, "debit") == 0){
 								accountNum1 = strtok(NULL, " ");
 								amount = atoi(strtok(NULL, " "));
+								VB_debit(accountNum1, amount);
 								printf("Subtracted %i dollars to account %s\n", amount, accountNum1);
 							}else{
 								accountNum1 = strtok(NULL, " ");
 								accountNum2 = strtok(NULL, " ");
 								amount = atoi(strtok(NULL, " "));
+								VB_transfer(accountNum1, accountNum2, amount);
 								printf("Transfered %i dollars from account %s to account %s\n", amount, accountNum1, accountNum2);
 							}
 
