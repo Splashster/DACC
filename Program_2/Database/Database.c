@@ -102,7 +102,7 @@ void startDB(sqlite3* bank1_db, sqlite3* bank2_db){
 		fprintf(stderr, "There was a problem with the bank1 db: %s\n", sqlite3_errmsg(bank1_db));
 	}else{
 		fprintf(stderr, "Bank 1 db was successfully opened\n");
-		//initilizeDB(bank1_db, "/home/coursework/DistributedAndCloudComputing/Program_2/Bank1/Bank1.txt", "BANK1");
+		initilizeDB(bank1_db, "/home/coursework/DistributedAndCloudComputing/Program_2/Bank1/Bank1.txt", "BANK1");
 		printf("BROKEN\n");
 	}
 
