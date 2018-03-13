@@ -47,7 +47,7 @@ void initilizeDB(sqlite3 *db, char* filename, char* bank){
 	char* transactionType;
 	int amount;
 	int balance;
-	int len = 100;
+	size_t len = 100;
 
 	line = (char*) malloc(len + 1);
 	//printf("bank: %s file: %s\n", bank, filename);
