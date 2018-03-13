@@ -47,8 +47,9 @@ void initilizeDB(sqlite3 *db, char* filename, char* bank){
 	char* transactionType;
 	int amount;
 	int balance;
-	size_t len = 0;
+	int len = 100;
 
+	line = (char*) malloc(len + 1);
 	//printf("bank: %s file: %s\n", bank, filename);
 
 	sprintf(sql, "CREATE TABLE %s (ID INT PRIMARY KEY NOT NULL, ACCOUNT_NUMBER INT NOT NULL, TRANSACTION_TYPE VARCHAR(10) NOT NULL, TRANSACTION_AMOUNT DECIMAL(10,2) NOT NULL, CURRENT_BALANCE DECIMAL(10,2) NOT NULL)", bank);
