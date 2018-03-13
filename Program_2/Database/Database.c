@@ -41,15 +41,15 @@ void initilizeDB(sqlite3 *db, char* filename, char* bank){
 	char sql[100];
 	int result;
 	FILE *file;
-	char* line = NULL;
+	char line[50];
 	int id;
 	char* accountNum;
 	char* transactionType;
 	int amount;
 	int balance;
-	size_t len = 100;
+	//size_t len = 0;
 
-	line = (char*) malloc(len + 1);
+	//line = (char*) malloc(len + 1);
 	//printf("bank: %s file: %s\n", bank, filename);
 
 	sprintf(sql, "CREATE TABLE %s (ID INT PRIMARY KEY NOT NULL, ACCOUNT_NUMBER INT NOT NULL, TRANSACTION_TYPE VARCHAR(10) NOT NULL, TRANSACTION_AMOUNT DECIMAL(10,2) NOT NULL, CURRENT_BALANCE DECIMAL(10,2) NOT NULL)", bank);
@@ -68,8 +68,8 @@ void initilizeDB(sqlite3 *db, char* filename, char* bank){
 	else{
 		//printf("Failing here5\n");
 		//printf("Working on fileshttps://www.youtube.com/watch?v=rcDizlmjNQY");
-		while(getline(&line, &len, file) != -1)
-		{
+		//getline(&line, &len, file) != -1
+		while(fgets(line, 50, file)!= NULL){
 			printf("Next\n");
 			if(line[0] != '\n'){
 				//printf("In\n");
@@ -88,7 +88,6 @@ void initilizeDB(sqlite3 *db, char* filename, char* bank){
 	   	fclose(file);
 	   	printf("done\n");
 	}
-	free(line);
 	printf("complete\n");
 }
 
