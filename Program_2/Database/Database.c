@@ -38,7 +38,7 @@ int sendQuery(sqlite3 *db, char* sql){
 }
 
 void initilizeDB(sqlite3 *db, char* filename, char* bank){
-	char sql[100];
+	char sql[300];
 	int result;
 	FILE *file;
 	char line[50];
