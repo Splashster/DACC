@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <VirtualBank.h>
 #include <rpc/rpc.h>
+#include "VirtualBank/VirtualBank.h"
 
 
 int doesFileExist(char* filename){
@@ -22,14 +22,18 @@ int main(int argc, char* argv[]){
 	int amount = 0;
 	int count = 0;
 	size_t len = 0;
+	int result = 0;
 	FILE *file;
-
+	establishConnection();
+	
 	while(1){
+		
 		printf("Ready> ");
 		getline(&input, &len, stdin);
 
 		if(strcasecmp(input,"quit\n") == 0){
 			printf("Goodbye\n");
+			done();
 			return 0;
 		}else{
 			if(input[0] != '\n' && input[0] != ' '){
@@ -40,19 +44,34 @@ int main(int argc, char* argv[]){
 							if(strcasecmp(transactionType, "credit") == 0){
 								accountNum1 = strtok(NULL, " ");
 								amount = atoi(strtok(NULL, " "));
-								VB_credit(accountNum1, amount);
-								printf("Added %i dollars to account %s\n", amount, accountNum1);
+								result = VB_credit(accountNum1, amount);
+								if(result != 0){
+									printf("Added %i dollars to account %s\n", amount, accountNum1);
+								}else{
+									printf("Error: Unable to credit funds");
+								}
+								
 							}else if(strcasecmp(transactionType, "debit") == 0){
 								accountNum1 = strtok(NULL, " ");
 								amount = atoi(strtok(NULL, " "));
-								VB_debit(accountNum1, amount);
-								printf("Subtracted %i dollars to account %s\n", amount, accountNum1);
+								result = VB_debit(accountNum1, amount);
+								if(result != 0){
+									printf("Subtracted %i dollars to account %s\n", amount, accountNum1);
+								}else{
+									printf("Error: not enough funds");
+								}
+								
 							}else{
 								accountNum1 = strtok(NULL, " ");
 								accountNum2 = strtok(NULL, " ");
 								amount = atoi(strtok(NULL, " "));
-								VB_transfer(accountNum1, accountNum2, amount);
-								printf("Transfered %i dollars from account %s to account %s\n", amount, accountNum1, accountNum2);
+								result = VB_transfer(accountNum1, accountNum2, amount);
+								if(result != 0){
+									printf("Transfered %i dollars from account %s to account %s\n", amount, accountNum1, accountNum2);
+								}else{
+									printf("Error: not enough funds");
+								}
+								
 							}
 
 					     }
