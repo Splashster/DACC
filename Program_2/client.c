@@ -24,11 +24,43 @@ int main(int argc, char* argv[]){
 	size_t len = 0;
 	FILE *file;
 
-	printf("Ready>");
-	getline(&input, &len, stdin);
+	while(1){
+		printf("Ready> ");
+		getline(&input, &len, stdin);
 
-	printf("%s", input);
+		if(strcasecmp(input,"quit\n") == 0){
+			printf("Goodbye\n");
+			return 0;
+		}else{
+			if(input[0] != '\n' && input[0] != ' '){
+					transactionType = strtok(input, " ");
+					if(strcasecmp(transactionType, "credit") != 0 && strcasecmp(transactionType, "debit") != 0  && strcasecmp(transactionType, "transfer") != 0){
+							printf("Invalid transaction type. Only Credit, Debit, or Transfer transactions allowed.\n");
+					}else{
+							if(strcasecmp(transactionType, "credit") == 0){
+								accountNum1 = strtok(NULL, " ");
+								amount = atoi(strtok(NULL, " "));
+								printf("Added %i dollars to account %s\n", amount, accountNum1);
+							}else if(strcasecmp(transactionType, "debit") == 0){
+								accountNum1 = strtok(NULL, " ");
+								amount = atoi(strtok(NULL, " "));
+								printf("Subtracted %i dollars to account %s\n", amount, accountNum1);
+							}else{
+								accountNum1 = strtok(NULL, " ");
+								accountNum2 = strtok(NULL, " ");
+								amount = atoi(strtok(NULL, " "));
+								printf("Transfered %i dollars from account %s to account %s\n", amount, accountNum1, accountNum2);
+							}
 
+					     }
+			}else if(input[0] != ' '){
+					printf("Please enter perform a transaction or type quit to exit");
+			}
+		}
+		
+
+		
+	}
 
 
 	/*if(argc < 3){
