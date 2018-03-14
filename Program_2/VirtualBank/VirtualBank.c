@@ -22,6 +22,7 @@ int VB_credit(char* accountNum, int amount){
 		transactionResult = b1_credit(accountNum,amount);
 	}else if(result == 2){
 		printf("Account: %s located at Bank 2\n", accountNum);
+		printf("I should be working....\n");
 		transactionResult = b2_credit(accountNum,amount);
 	}else{
 		printf("Unable to locate account: %s\n", accountNum);
