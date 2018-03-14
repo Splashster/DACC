@@ -14,6 +14,7 @@ int VB_credit(char* accountNum, int amount){
 	int transactionResult = 0;
 
 	result = accountLookUP(accountNum);
+	printf("The result: %i", result);
 
 	if(result == 1){
 		printf("Account: %s located at Bank 1\n", accountNum);
