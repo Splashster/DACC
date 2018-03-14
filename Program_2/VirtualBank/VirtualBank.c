@@ -85,7 +85,4 @@ int VB_transfer(char* accountNum1, char* accountNum2, int amount){
 
 	return transactionResult;
 }
-
-void done(){
-	//closeDB();
 }
