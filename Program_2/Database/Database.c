@@ -69,7 +69,7 @@ int addQuery(sqlite3 *db, char* sql){
       	sqlite3_free(zErrMsg);
 
    	} else {
-      fprintf(stdout, "Created successfully\n");
+      //fprintf(stdout, "Created successfully\n");
    	}
 
    	return result;
@@ -251,7 +251,7 @@ int credit(int bank, char*accountNum, int amount){
 	sprintf(sql, "SELECT * FROM BANK%i WHERE ACCOUNT_NUMBER = '%s' ORDER BY ID DESC LIMIT 1", bank, accountNum);
 	//printf("SQL: %s\n", sql);
 	theData = fundsQuery(db,sql, theData);
-	printf("Old Balance: %i\n", theData.remaining_balance);
+	printf("Old Balance for Account: %s is: %i\n", accountNum, theData.remaining_balance);
 
 	theData.remaining_balance += amount;
 	theData.id += 1;
@@ -261,7 +261,7 @@ int credit(int bank, char*accountNum, int amount){
 
 	sprintf(sql, "SELECT * FROM BANK%i WHERE ACCOUNT_NUMBER = '%s' ORDER BY ID DESC LIMIT 1", bank, accountNum);
 	theData = fundsQuery(db,sql,theData);
-	printf("New Balance: %i\n", theData.remaining_balance);
+	printf("New Balance for Account: %s is: %i\n", accountNum, theData.remaining_balance);
 
 	closeDB(db, NULL);
 	return 1;
@@ -278,7 +278,7 @@ int debit(int bank, char* accountNum, int amount){
 	sprintf(sql, "SELECT * FROM BANK%i WHERE ACCOUNT_NUMBER = '%s' ORDER BY ID DESC LIMIT 1", bank, accountNum);
 	//printf("SQL: %s\n", sql);
 	theData = fundsQuery(db,sql, theData);
-	printf("Rem Balance: %i\n", theData.remaining_balance);
+	printf("Current Balance for Account: %s is: %i\n", accountNum, theData.remaining_balance);
 
 	if((theData.remaining_balance - amount) >= 0){
 		theData.remaining_balance -= amount;
@@ -287,7 +287,7 @@ int debit(int bank, char* accountNum, int amount){
 		addQuery(db, sql);
 		sprintf(sql, "SELECT * FROM BANK%i WHERE ACCOUNT_NUMBER = '%s' ORDER BY ID DESC LIMIT 1", bank, accountNum);
 		theData = fundsQuery(db,sql,theData);
-		printf("New Balance: %i\n", theData.remaining_balance);
+		printf("New Balance for Account: %s is: %i\n",accountNum, theData.remaining_balance);
 		transactionProcessed = 1;
 
 	}

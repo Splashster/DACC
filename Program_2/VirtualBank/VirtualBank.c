@@ -54,9 +54,7 @@ int VB_transfer(char* accountNum1, char* accountNum2, int amount){
 	int transactionResult = 0;
 
 	acc1_location = accountLookUP(accountNum1);
-	printf("working1\n");
 	acc2_location = accountLookUP(accountNum2);
-	printf("working2\n");
 
 	if((acc1_location == 1 || acc1_location == 2) && (acc2_location == 1 || acc2_location == 2)){
 		if(acc1_location == 1){
