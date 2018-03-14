@@ -1,3 +1,5 @@
-void startDB();
+#include <sqlite3.h>
+
+void setupDB();
 void closeDB(sqlite3* bank1_db, sqlite3* bank2_db);
-int accountLookUp(sqlite3* bank1_db, sqlite3* bank2_db, char* accountNum);
+int accountLookUp(char* accountNum);

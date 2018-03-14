@@ -24,8 +24,8 @@ int main(int argc, char* argv[]){
 	size_t len = 0;
 	int result = 0;
 	FILE *file;
-	establishConnection();
-	
+	intializeDatabase();
+
 	while(1){
 		
 		printf("Ready> ");
@@ -48,7 +48,7 @@ int main(int argc, char* argv[]){
 								if(result != 0){
 									printf("Added %i dollars to account %s\n", amount, accountNum1);
 								}else{
-									printf("Error: Unable to credit funds");
+									printf("Error: Unable to credit funds\n");
 								}
 								
 							}else if(strcasecmp(transactionType, "debit") == 0){
@@ -58,7 +58,7 @@ int main(int argc, char* argv[]){
 								if(result != 0){
 									printf("Subtracted %i dollars to account %s\n", amount, accountNum1);
 								}else{
-									printf("Error: not enough funds");
+									printf("Error: not enough funds\n");
 								}
 								
 							}else{
@@ -69,7 +69,7 @@ int main(int argc, char* argv[]){
 								if(result != 0){
 									printf("Transfered %i dollars from account %s to account %s\n", amount, accountNum1, accountNum2);
 								}else{
-									printf("Error: not enough funds");
+									printf("Error: not enough funds\n");
 								}
 								
 							}
