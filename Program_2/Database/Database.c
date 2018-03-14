@@ -3,6 +3,11 @@
 #include <string.h>
 #include <sqlite3.h>
 #include <errno.h>
+#include "Database.h"
+
+typedef struct{
+	int row_count;
+}db_data;
 
 void closeDB(sqlite3* bank1_db, sqlite3* bank2_db){
 	sqlite3_close(bank1_db);
@@ -10,16 +15,20 @@ void closeDB(sqlite3* bank1_db, sqlite3* bank2_db){
 
 }
 
-static int lookUpQueryCallback(void *data, int argc, char **argv, char **azColName) {
-   int i;
-   fprintf(stderr, "%s: ", (const char*)data);
+static int lookUpQueryCallback(void *Used, int argc, char **argv, char **azColName) {
+   /*int i;
+   fprintf(stderr, "Here %s: ", (const char*)data);
    for(i = 0; i<argc; i++) {
-      printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+      printf("Over here %s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
    }
    printf("\n");
 
-   printf("Count: %i\n", argc);
-   return argc;
+   printf("Num Rows Returned: %s\n", argv[0]);
+   row_count = argv[0];*/
+   db_data *theData = (db_data *)Used;
+
+   theData->row_count = atoi(argv[0]);
+   return 0;
 }
 
 static int addQueryCallback(void *NotUsed, int argc, char **argv, char **azColName) {
@@ -53,19 +62,20 @@ int lookUpQuery(sqlite3 *db, char* sql){
 	int result;
 	char *zErrMsg = 0;
 	const char* data = "Callback Function";
+	db_data theData;
 
-	result = sqlite3_exec(db, sql, lookUpQueryCallback, (void*)data, &zErrMsg);
+	result = sqlite3_exec(db, sql, lookUpQueryCallback, &theData, &zErrMsg);
 
-	printf("The result: %i\n", result);
+	//printf("The result: %i\n", result);
 	/*if(result != SQLITE_OK){
 		fprintf(stderr, "SQL error: %s\n", zErrMsg);
       	sqlite3_free(zErrMsg);
 
    	} else {
       fprintf(stdout, "Table created successfully\n");
-   	}*/
-
-   	return result;
+   	/}*/
+     //printf("Rowcount: %i\n", theData.row_count);
+   	return theData.row_count;
 
 }
 
@@ -123,7 +133,7 @@ void initializeDB(sqlite3 *db, char* filename, char* bank){
 	//printf("complete\n");
 }
 
-sqlite3* openDB(int bank, sqlite3* db){
+sqlite3* openDBConnection(int bank, sqlite3* db){
 
 	int result = 0;
 
@@ -152,8 +162,8 @@ void setupDB(){
 	sqlite3* bank2_db;
 
 
-	bank1_db = openDB(1, bank1_db);
-	bank2_db = openDB(2, bank2_db);
+	bank1_db = openDBConnection(1, bank1_db);
+	bank2_db = openDBConnection(2, bank2_db);
 	initializeDB(bank1_db, "/home/coursework/DistributedAndCloudComputing/Program_2/Bank1/Bank1.txt", "BANK1");		
 	initializeDB(bank2_db, "/home/coursework/DistributedAndCloudComputing/Program_2/Bank2/Bank2.txt", "BANK2");
 	
@@ -168,22 +178,25 @@ int accountLookUP(char* accountNum){
 	sqlite3* bank1_db;
 	sqlite3* bank2_db;
 
-	bank1_db = openDB(1, bank1_db);
-	bank2_db = openDB(2, bank2_db);
+	bank1_db = openDBConnection(1, bank1_db);
+	bank2_db = openDBConnection(2, bank2_db);
 
 
-	printf("I'm working\n");
+	//printf("I'm working\n");
 	sprintf(sql, "SELECT COUNT(*) FROM BANK1 where ACCOUNT_NUMBER = '%s'", accountNum);
 	result = lookUpQuery(bank1_db, sql);
-	printf("Count1: %i", result);
-	if(result > 4){
+	printf("Row Count for Bank 1: %i\n", result);
+	if(result == 1){
 		location = 1;
-	}else if(result == 4){
+	}else{
 		sprintf(sql, "SELECT COUNT(*) FROM BANK2 where ACCOUNT_NUMBER = '%s'", accountNum);
 		result = lookUpQuery(bank2_db, sql);
-		printf("Count2: %i", result);
-		location = 2;
-	}else{
+		printf("Row Count for Bank 2: %i\n", result);
+		if(result == 1){
+			location = 2;
+		}
+	}
+	if(location == 0){
 		printf("Whoops there was a problem\n");
 	}
 

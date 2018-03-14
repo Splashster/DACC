@@ -14,8 +14,10 @@ int VB_credit(char* accountNum, int amount){
 
 	if(result == 1){
 		printf("Account: %s located at Bank 1\n", accountNum);
-	}else{
+	}else if(result == 2){
 		printf("Account: %s located at Bank 2\n", accountNum);
+	}else{
+		printf("Unable to locate account: %s\n", accountNum);
 	}
 
 	return result;
