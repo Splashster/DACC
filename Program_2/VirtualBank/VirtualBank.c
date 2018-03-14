@@ -11,6 +11,15 @@ void establishConnection(){
 
 int VB_credit(char* accountNum, int amount){
 	int result = 0;
+
+	result = accountLookUP(bank1_db, bank2_db, accountNum);
+
+	if(result == 1){
+		printf("Account: %s located at Bank 1\n", accountNum);
+	}else{
+		printf("Account: %s located at Bank 2\n", accountNum);
+	}
+
 	return result;
 }
 

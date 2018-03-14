@@ -10,7 +10,16 @@ void closeDB(sqlite3* bank1_db, sqlite3* bank2_db){
 
 }
 
-static int callback(void *NotUsed, int argc, char **argv, char **azColName) {
+static int* lookUpQueryCallback(void *NotUsed, int argc, char **argv, char **azColName) {
+   int i;
+   for(i = 0; i<argc; i++) {
+      printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+   }
+   printf("\n");
+   return argc;
+}
+
+static int addQueryCallback(void *NotUsed, int argc, char **argv, char **azColName) {
    int i;
    for(i = 0; i<argc; i++) {
       printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
@@ -19,11 +28,11 @@ static int callback(void *NotUsed, int argc, char **argv, char **azColName) {
    return 0;
 }
 
-int sendQuery(sqlite3 *db, char* sql){
+int addQuery(sqlite3 *db, char* sql){
 	int result;
 	char *zErrMsg = 0;
 
-	result = sqlite3_exec(db, sql, callback, 0, &zErrMsg);
+	result = sqlite3_exec(db, sql, addQueryCallback, 0, &zErrMsg);
 
 	if(result != SQLITE_OK){
 		fprintf(stderr, "SQL error: %s\n", zErrMsg);
@@ -37,11 +46,30 @@ int sendQuery(sqlite3 *db, char* sql){
 
 }
 
+char* lookUpQuery(sqlite3 *db, char* sql){
+	int result;
+	char *zErrMsg = 0;
+
+
+	result = sqlite3_exec(db, sql, lookUpQueryCallback, 0, &zErrMsg);
+
+	/*if(result != SQLITE_OK){
+		fprintf(stderr, "SQL error: %s\n", zErrMsg);
+      	sqlite3_free(zErrMsg);
+
+   	} else {
+      fprintf(stdout, "Table created successfully\n");
+   	}*/
+
+   	return result;
+
+}
+
 void initilizeDB(sqlite3 *db, char* filename, char* bank){
 	char sql[300];
 	int result;
 	FILE *file;
-	char line[50];
+	char line[300];
 	int id;
 	char* accountNum;
 	char* transactionType;
@@ -56,7 +84,7 @@ void initilizeDB(sqlite3 *db, char* filename, char* bank){
 	//puts(sql);
 	printf("%s\n",sql);
 
-	sendQuery(db, sql);
+	addQuery(db, sql);
 
 	printf("Failing here\n");
 	//printf("%s\n", filename);
@@ -69,7 +97,7 @@ void initilizeDB(sqlite3 *db, char* filename, char* bank){
 		//printf("Failing here5\n");
 		//printf("Working on fileshttps://www.youtube.com/watch?v=rcDizlmjNQY");
 		//getline(&line, &len, file) != -1
-		while(fgets(line, 50, file)!= NULL){
+		while(fgets(line, 300, file)!= NULL){
 			printf("Next\n");
 			if(line[0] != '\n'){
 				//printf("In\n");
@@ -82,7 +110,7 @@ void initilizeDB(sqlite3 *db, char* filename, char* bank){
 	   			sprintf(sql,"INSERT INTO %s (ID, ACCOUNT_NUMBER, TRANSACTION_TYPE, TRANSACTION_AMOUNT, CURRENT_BALANCE) VALUES (%i, '%s', '%s', %i, %i)",bank, id, accountNum ,transactionType, amount, balance);
 
 	   			printf("%s\n",sql);
-	   			sendQuery(db, sql);
+	   			addQuery(db, sql);
 	   		}
 	   	}
 	   	fclose(file);
@@ -117,4 +145,40 @@ void startDB(sqlite3* bank1_db, sqlite3* bank2_db){
 	}
 
 
+}
+
+int accountLookUP(sqlite3* db1, sqlite3* db2, char* accountNum){
+	int result = 0;
+	int location = 0;
+	char sql[300];
+
+
+	sprintf(sql, "SELECT COUNT(*) FROM BANK1 where ACCOUNT_NUMBER = %s", accountNum);
+	result = lookUpQuery(db1, sql);
+	if(result > 0){
+		location = 1;
+	}else if(result == 0){
+		sprintf(sql, "SELECT COUNT(*) FROM BANK2 where ACCOUNT_NUMBER = %s", accountNum);
+		result = lookUpQuery(db2, sql);
+		location = 2;
+	}else{
+		printf("Whoops there was a problem\n");
+	}
+
+	return location;
+}
+
+int credit(){
+	int result = 0
+	return result;
+}
+
+int debit(){
+	int result = 0
+	return result;
+}
+
+int transfer(){
+	int result = 0
+	return result;
 }
