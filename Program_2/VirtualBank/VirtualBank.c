@@ -13,7 +13,7 @@ int VB_credit(char* accountNum, int amount){
 	int result = 0;
 	int transactionResult = 0;
 
-	printf("Before result:%i\n", result)
+	printf("Before result:%i\n", result);
 	result = accountLookUP(accountNum);
 	printf("The result: %i\n", result);
 
