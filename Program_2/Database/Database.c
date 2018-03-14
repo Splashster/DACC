@@ -25,7 +25,7 @@ static int lookUpQueryCallback(void *Used, int argc, char **argv, char **azColNa
    db_data *theData = (db_data *)Used;
    theData->row_count = atoi(argv[0]);
    //int i;
-   
+
    /*for(i = 0; i<argc; i++) {
       printf("I'm here %s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
   }*/
@@ -39,7 +39,7 @@ static int addQueryCallback(void *NotUsed, int argc, char **argv, char **azColNa
 static int fundsQueryCallback(void *Used, int argc, char **argv, char **azColName){
 	db_data *theData = (db_data *)Used;
    	int i;
-   
+
    for(i = 0; i<argc; i++) {
       //printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
       //if(azColName[0] == "ID"){
@@ -50,7 +50,7 @@ static int fundsQueryCallback(void *Used, int argc, char **argv, char **azColNam
       	 //printf("Current bal: %i\n", theData->remaining_balance);
       //}
       //printf("Current col:%s i: %i\n", azColName[i], i);
-     
+
    }
 
 
@@ -181,7 +181,7 @@ sqlite3* openDBConnection(int bank, sqlite3* db){
 				}
 	}else{
 			result = sqlite3_open("bank2.db", &db);
-	
+
 			if(result){
 				fprintf(stderr, "There was a problem with the bank2 db: %s\n", sqlite3_errmsg(db));
 			}else{
@@ -199,9 +199,9 @@ void setupDB(){
 
 	bank1_db = openDBConnection(1, bank1_db);
 	bank2_db = openDBConnection(2, bank2_db);
-	initializeDB(bank1_db, "/home/coursework/DistributedAndCloudComputing/Program_2/Bank1/Bank1.txt", "BANK1");		
+	initializeDB(bank1_db, "/home/coursework/DistributedAndCloudComputing/Program_2/Bank1/Bank1.txt", "BANK1");
 	initializeDB(bank2_db, "/home/coursework/DistributedAndCloudComputing/Program_2/Bank2/Bank2.txt", "BANK2");
-	
+
 	closeDB(bank1_db, bank2_db);
 }
 
@@ -245,7 +245,7 @@ int credit(int bank, char*accountNum, int amount){
 	sqlite3* db;
 	char sql[300];
 	db_data theData;
-	
+
 
 	db = openDBConnection(bank, db);
 	sprintf(sql, "SELECT * FROM BANK%i WHERE ACCOUNT_NUMBER = '%s' ORDER BY ID DESC LIMIT 1", bank, accountNum);
@@ -272,7 +272,7 @@ int debit(int bank, char* accountNum, int amount){
 	sqlite3* db;
 	char sql[300];
 	db_data theData;
-	
+
 
 	db = openDBConnection(bank, db);
 	sprintf(sql, "SELECT * FROM BANK%i WHERE ACCOUNT_NUMBER = '%s' ORDER BY ID DESC LIMIT 1", bank, accountNum);
@@ -295,9 +295,4 @@ int debit(int bank, char* accountNum, int amount){
 	closeDB(db, NULL);
 
 	return transactionProcessed;
-}
-
-int transfer(){
-	int result = 0;
-	return result;
 }

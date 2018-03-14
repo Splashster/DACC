@@ -19,7 +19,7 @@ int VB_credit(char* accountNum, int amount){
 		transactionResult = b1_credit(accountNum,amount);
 	}else if(result == 2){
 		printf("Account: %s located at Bank 2\n", accountNum);
-		
+		transactionResult = b2_credit(accountNum,amount);
 	}else{
 		printf("Unable to locate account: %s\n", accountNum);
 	}
@@ -38,7 +38,7 @@ int VB_debit(char* accountNum, int amount){
 		transactionResult = b1_debit(accountNum,amount);
 	}else if(result == 2){
 		printf("Account: %s located at Bank 2\n", accountNum);
-		
+		transactionResult = b2_debit(accountNum,amount);
 	}else{
 		printf("Unable to locate account: %s\n", accountNum);
 	}
@@ -48,8 +48,42 @@ int VB_debit(char* accountNum, int amount){
 
 
 int VB_transfer(char* accountNum1, char* accountNum2, int amount){
-	int result = 0;
-	return result;
+	int acc1_location = 0;
+	int acc2_location = 0;
+	int transactionResult = 0;
+
+	acc1_location = accountLookUP(accountNum1);
+	acc2_location = accountLookUP(accountNum2);
+
+	if((acc1_location == 1 || acc1_location == 2) && (acc2_location == 1 || acc2_location == 2)){
+		if(acc1_location == 1){
+			printf("Account1: %s located at Bank 1\n", accountNum1);
+			transactionResult = b1_debit(accountNum1,amount);
+			if(transactionResult != 0){
+				if(acc2_location == 1){
+						transactionResult = b1_credit(accountNum2,amount);
+				}else{
+					transactionResult = b2_credit(accountNum2,amount);
+				}
+			}
+		}else if(acc1_location == 2){
+			printf("Account1: %s located at Bank 2\n", accountNum1);
+			transactionResult = b2_debit(accountNum1,amount);
+			if(transactionResult != 0){
+				if(acc2_location == 2){
+						transactionResult = b2_credit(accountNum2,amount);
+				}else{
+					transactionResult = b1_credit(accountNum2,amount);
+				}
+		}
+	}else{
+			printf("Unable to locate account: %s\n", accountNum1);
+			if((acc2_location != 1 && acc2_location != 2)){
+				printf("Unable to locate account: %s\n", accountNum2);
+			}
+	}
+
+	return transactionResult;
 }
 
 void done(){
