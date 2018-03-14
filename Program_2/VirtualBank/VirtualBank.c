@@ -62,8 +62,10 @@ int VB_transfer(char* accountNum1, char* accountNum2, int amount){
 			transactionResult = b1_debit(accountNum1,amount);
 			if(transactionResult != 0){
 				if(acc2_location == 1){
+						printf("Account1: %s located at Bank 1\n", accountNum2);
 						transactionResult = b1_credit(accountNum2,amount);
 				}else{
+					printf("Account2: %s located at Bank 1\n", accountNum2);
 					transactionResult = b2_credit(accountNum2,amount);
 				}
 			}
@@ -72,8 +74,10 @@ int VB_transfer(char* accountNum1, char* accountNum2, int amount){
 			transactionResult = b2_debit(accountNum1,amount);
 			if(transactionResult != 0){
 				if(acc2_location == 2){
+						printf("Account2: %s located at Bank 2\n", accountNum2);
 						transactionResult = b2_credit(accountNum2,amount);
 				}else{
+					printf("Account2: %s located at Bank 1\n", accountNum2);
 					transactionResult = b1_credit(accountNum2,amount);
 				}
 		}
