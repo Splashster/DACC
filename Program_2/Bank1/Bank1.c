@@ -12,5 +12,6 @@ int b1_credit(char* accountNum, int amount){
 
 int b1_debit(char*accountNum, int amount){
 	int result = 0;
+	result = debit(1, accountNum, amount);
 	return result;
 }

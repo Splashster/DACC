@@ -267,12 +267,34 @@ int credit(int bank, char*accountNum, int amount){
 	return 1;
 }
 
-int debit(){
-	int result = 0;
-	//int remaining_balance = 0;
-	//if((remaining_balance - amount) >= 0){
-	//}
-	return result;
+int debit(int bank, char* accountNum, int amount){
+	int transactionProcessed = 0;
+	sqlite3* db;
+	char sql[300];
+	db_data theData;
+	
+
+	db = openDBConnection(bank, db);
+	sprintf(sql, "SELECT * FROM BANK%i WHERE ACCOUNT_NUMBER = '%s' ORDER BY ID DESC LIMIT 1", bank, accountNum);
+	//printf("SQL: %s\n", sql);
+	theData = fundsQuery(db,sql, theData);
+	printf("Rem Balance: %i\n", theData.remaining_balance);
+
+	if((theData.remaining_balance - amount) >= 0){
+		theData.remaining_balance -= amount;
+		theData.id += 1;
+		sprintf(sql, "INSERT INTO BANK%i (ID, ACCOUNT_NUMBER, TRANSACTION_TYPE, TRANSACTION_AMOUNT, CURRENT_BALANCE) VALUES (%i, '%s', 'credit', %i, %i)",bank, theData.id , accountNum, amount, theData.remaining_balance);
+		addQuery(db, sql);
+		sprintf(sql, "SELECT * FROM BANK%i WHERE ACCOUNT_NUMBER = '%s' ORDER BY ID DESC LIMIT 1", bank, accountNum);
+		theData = fundsQuery(db,sql,theData);
+		printf("New Balance: %i\n", theData.remaining_balance);
+		transactionProcessed = 1;
+
+	}
+
+	closeDB(db, NULL);
+
+	return transactionProcessed;
 }
 
 int transfer(){

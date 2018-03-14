@@ -33,13 +33,12 @@ int main(int argc, char* argv[]){
 
 		if(strcasecmp(input,"quit\n") == 0){
 			printf("Goodbye\n");
-			done();
 			return 0;
 		}else{
 			if(input[0] != '\n' && input[0] != ' '){
 					transactionType = strtok(input, " ");
 					if(strcasecmp(transactionType, "credit") != 0 && strcasecmp(transactionType, "debit") != 0  && strcasecmp(transactionType, "transfer") != 0){
-							printf("Invalid transaction type. Only Credit, Debit, or Transfer transactions allowed.\n");
+							printf("Invalid transaction type. Only Credit, Debit, or Transfer transactions allowed or type quit to exit.\n");
 					}else{
 							if(strcasecmp(transactionType, "credit") == 0){
 								accountNum1 = strtok(NULL, " ");
