@@ -10,7 +10,7 @@ int b2_credit(char* accountNum, int amount){
 	return result;
 }
 
-int b2_debit(char*accountNum, int amount){
+int b2_debit(char* accountNum, int amount){
 	int result = 0;
 	result = debit(2, accountNum, amount);
 	return result;

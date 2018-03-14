@@ -2,6 +2,7 @@
 #include <sqlite3.h>
 #include "../Database/Database.h"
 #include "../Bank1/Bank1.h"
+#include "../Bank2/Bank2.h"
 
 
 void intializeDatabase(){
