@@ -177,7 +177,7 @@ sqlite3* openDBConnection(int bank, sqlite3* db){
 			if(result){
 					fprintf(stderr, "There was a problem with the bank1 db: %s\n", sqlite3_errmsg(db));
 			}else{
-					fprintf(stderr, "Bank 1 db was successfully opened\n");
+					//fprintf(stderr, "Bank 1 db was successfully opened\n");
 				}
 	}else{
 			result = sqlite3_open("bank2.db", &db);
@@ -185,7 +185,7 @@ sqlite3* openDBConnection(int bank, sqlite3* db){
 			if(result){
 				fprintf(stderr, "There was a problem with the bank2 db: %s\n", sqlite3_errmsg(db));
 			}else{
-				fprintf(stderr, "Bank 2 db was successfully opened\n");
+				//fprintf(stderr, "Bank 2 db was successfully opened\n");
 			}
 	}
 

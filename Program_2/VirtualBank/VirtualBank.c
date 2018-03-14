@@ -13,16 +13,13 @@ int VB_credit(char* accountNum, int amount){
 	int result = 0;
 	int transactionResult = 0;
 
-	printf("Before result:%i\n", result);
 	result = accountLookUP(accountNum);
-	printf("The result: %i\n", result);
 
 	if(result == 1){
 		printf("Account: %s located at Bank 1\n", accountNum);
 		transactionResult = b1_credit(accountNum,amount);
 	}else if(result == 2){
-		printf("Account: %s located at Bank 2.....\n", accountNum);
-		printf("I should be working....\n");
+		printf("Account: %s located at Bank 2\n", accountNum);
 		transactionResult = b2_credit(accountNum,amount);
 	}else{
 		printf("Unable to locate account: %s\n", accountNum);
