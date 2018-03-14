@@ -251,7 +251,7 @@ int credit(int bank, char*accountNum, int amount){
 	sprintf(sql, "SELECT * FROM BANK%i WHERE ACCOUNT_NUMBER = '%s' ORDER BY ID DESC LIMIT 1", bank, accountNum);
 	//printf("SQL: %s\n", sql);
 	theData = fundsQuery(db,sql, theData);
-	printf("Old Balance for Account: %s is: %i\n", accountNum, theData.remaining_balance);
+	printf("Current Balance for Account: %s is: %i\n", accountNum, theData.remaining_balance);
 
 	theData.remaining_balance += amount;
 	theData.id += 1;
