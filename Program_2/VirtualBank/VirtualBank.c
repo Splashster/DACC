@@ -76,7 +76,8 @@ int VB_transfer(char* accountNum1, char* accountNum2, int amount){
 					transactionResult = b1_credit(accountNum2,amount);
 				}
 		}
-	}else{
+	}
+``}else{
 			printf("Unable to locate account: %s\n", accountNum1);
 			if((acc2_location != 1 && acc2_location != 2)){
 				printf("Unable to locate account: %s\n", accountNum2);
@@ -84,5 +85,4 @@ int VB_transfer(char* accountNum1, char* accountNum2, int amount){
 	}
 
 	return transactionResult;
-}
 }
