@@ -27,9 +27,9 @@ void closeDB(sqlite3* db1, sqlite3* db2, sqlite3* db3){
 static int lookUpQueryCallback(void *Used, int argc, char **argv, char **azColName) {
    db_data *theData = (db_data *)Used;
    theData->bank_location = atoi(argv[0]);
-   //int i;
+   /*int i;
 
-   /*for(i = 0; i<argc; i++) {
+   for(i = 0; i<argc; i++) {
       printf("I'm here %s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
   }*/
    return 0;
@@ -72,7 +72,7 @@ int addQuery(sqlite3 *db, char* sql){
       	sqlite3_free(zErrMsg);
 
    	} else {
-      //fprintf(stdout, "Created successfully\n");
+     // fprintf(stdout, "Created successfully\n");
    	}
 
    	return result;
@@ -131,7 +131,8 @@ void initializeDB(sqlite3 *db, char* filename, char* bank){
 
 
 	if(strcmp(bank,"VIRTUALBANK") == 0){
-		sprintf(sql, "CREATE TABLE ACCOUNT_MAPPING (ID INTEGER PRIMARY KEY NOT NULL, ACCOUNT_NUMBER INT NOT NULL, BANK_LOCATION INTEGER NOT NULL");
+		sprintf(sql, "CREATE TABLE ACCOUNT_MAPPING (ID INTEGER PRIMARY KEY NOT NULL, ACCOUNT_NUMBER INT NOT NULL, BANK_LOCATION INTEGER NOT NULL)");
+		//printf("SQL: %s\n",sql);
 		addQuery(db, sql);
 
 	  file = fopen(filename, "r");
@@ -143,7 +144,7 @@ void initializeDB(sqlite3 *db, char* filename, char* bank){
 				if(line[0] != '\n'){
 						id = atoi(strtok(line, " "));
 						accountNum = strtok(NULL, " ");
-						bank_location = strtok(NULL, " ");
+						bank_location = atoi(strtok(NULL, " "));
 
 		   			sprintf(sql,"INSERT INTO ACCOUNT_MAPPING (ID, ACCOUNT_NUMBER, BANK_LOCATION) VALUES (%i, '%s', %i)", id, accountNum , bank_location);
 		   			addQuery(db, sql);
@@ -167,7 +168,7 @@ void initializeDB(sqlite3 *db, char* filename, char* bank){
 					transactionType = strtok(NULL, " ");
 					amount = atoi(strtok(NULL, " "));
 					balance = atoi(strtok(NULL, " "));
-		   			sprintf(sql,"INSERT INTO TRANSACTIONS (ID, ACCOUNT_NUMBER, TRANSACTION_TYPE, TRANSACTION_AMOUNT, CURRENT_BALANCE) VALUES ('%s', '%s', %i, %i)", id, accountNum ,transactionType, amount, balance);
+		   			sprintf(sql,"INSERT INTO TRANSACTIONS (ID, ACCOUNT_NUMBER, TRANSACTION_TYPE, TRANSACTION_AMOUNT, CURRENT_BALANCE) VALUES (%i, '%s', '%s', %i, %i)", id, accountNum ,transactionType, amount, balance);
 		   			addQuery(db, sql);
 		   		}
 		   	}
@@ -243,6 +244,7 @@ int accountLookUP(char* accountNum){
 
 	sprintf(sql, "SELECT BANK_LOCATION FROM ACCOUNT_MAPPING where ACCOUNT_NUMBER = '%s' LIMIT 1", accountNum);
 	theData.bank_location = lookUpQuery(virtual_db, sql, theData);
+	//printf("Location: %i\n", theData.bank_location);
 	//printf("Row Count for Bank 1: %i\n", result);
 	/*if(result == 1){
 		location = 1;
@@ -295,7 +297,7 @@ int debit(int bank, char* accountNum, int amount){
 
 
 	db = openDBConnection(bank, db);
-	sprintf(sql, "SELECT * FROM TRANSACTIONS WHERE ACCOUNT_NUMBER = '%s' ORDER BY ID DESC LIMIT 1", bank, accountNum);
+	sprintf(sql, "SELECT * FROM TRANSACTIONS WHERE ACCOUNT_NUMBER = '%s' ORDER BY ID DESC LIMIT 1", accountNum);
 	//printf("SQL: %s\n", sql);
 	theData = fundsQuery(db,sql, theData);
 	printf("Current Balance for Account: %s is: %i\n", accountNum, theData.remaining_balance);
@@ -305,14 +307,14 @@ int debit(int bank, char* accountNum, int amount){
 		theData.id += 1;
 		sprintf(sql, "INSERT INTO TRANSACTIONS (ID, ACCOUNT_NUMBER, TRANSACTION_TYPE, TRANSACTION_AMOUNT, CURRENT_BALANCE) VALUES (%i, '%s', 'credit', %i, %i)", theData.id , accountNum, amount, theData.remaining_balance);
 		addQuery(db, sql);
-		sprintf(sql, "SELECT * FROM TRANSACTIONS WHERE ACCOUNT_NUMBER = '%s' ORDER BY ID DESC LIMIT 1", bank, accountNum);
+		sprintf(sql, "SELECT * FROM TRANSACTIONS WHERE ACCOUNT_NUMBER = '%s' ORDER BY ID DESC LIMIT 1", accountNum);
 		theData = fundsQuery(db,sql,theData);
 		printf("New Balance for Account: %s is: %i\n",accountNum, theData.remaining_balance);
 		transactionProcessed = 1;
 
 	}
 
-	closeDB(db, NULL);
+	closeDB(db, NULL, NULL);
 
 	return transactionProcessed;
 }
