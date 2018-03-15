@@ -39,7 +39,7 @@ int main(int argc, char* argv[]){
 							printf("Invalid transaction type. Only Credit, Debit, or Transfer transactions allowed or type quit to exit.\n");
 					}else{
 							if(strcasecmp(transactionType, "credit") == 0){
-								strcpy(vals.accountNum1, strtok(NULL, " "));
+								vals.accountNum1 = strtok(NULL, " ");
 								vals.accountNum2 = NULL;
 								vals.amount = atoi(strtok(NULL, " "));
 								result = vb_credit_1(&vals, remote_client);
