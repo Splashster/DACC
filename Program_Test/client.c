@@ -30,7 +30,7 @@ int main(int argc, char* argv[]){
 		//getline(&input, &len, stdin);
 		scanf("%s", transactionType);
 		scanf("%s", accountNum1);
-		scanf("%i", amount);
+		scanf("%d", amount);
 
 		if(strcasecmp(transactionType,"quit\n") == 0){
 			printf("Goodbye\n");
