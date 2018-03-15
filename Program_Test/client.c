@@ -7,9 +7,9 @@
 int main(int argc, char* argv[]){
 	CLIENT *remote_client;
 	char* input = NULL;
-	char* transactionType;
-	char* accountNum1;
-	char* accountNum2;
+	char transactionType[50];
+	char accountNum1[50];
+	char accountNum2[50];
 	int amount = 0;
 	int count = 0;
 	size_t len = 0;
