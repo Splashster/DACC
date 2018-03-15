@@ -242,6 +242,7 @@ int accountLookUP(char* accountNum){
 
 
 	sprintf(sql, "SELECT BANK_LOCATION FROM ACCOUNT_MAPPING where ACCOUNT_NUMBER = '%s' LIMIT 1", accountNum);
+	printf("SQL: %s\n",sql);
 	theData.bank_location = lookUpQuery(virtual_db, sql, theData);
 	printf("Location: %i\n", theData.bank_location);
 	//printf("Row Count for Bank 1: %i\n", result);
@@ -318,5 +319,6 @@ int debit(int bank, char* accountNum, int amount){
 
 	closeDB(db);
 
+	printf("Result:%i\n", transactionProcessed);
 	return transactionProcessed;
 }
