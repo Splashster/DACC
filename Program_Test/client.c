@@ -40,7 +40,7 @@ int main(int argc, char* argv[]){
 					}else{
 							if(strcasecmp(transactionType, "credit") == 0){
 								vals.accountNum1 = strtok(NULL, " ");
-								memset(vals.accountNum1, 0, 50);
+								memset(vals.accountNum2, 0, 50);
 								vals.amount = atoi(strtok(NULL, " "));
 								result = vb_credit_1(&vals, remote_client);
 								if (result == NULL) {
@@ -55,7 +55,7 @@ int main(int argc, char* argv[]){
 
 							}else if(strcasecmp(transactionType, "debit") == 0){
 								vals.accountNum1 = strtok(NULL, " ");
-								memset(vals.accountNum1, 0, 50);
+								memset(vals.accountNum2, 0, 50);
 								vals.amount = atoi(strtok(NULL, " "));
 								result = vb_debit_1(&vals,remote_client);
 								if (result == NULL) {
