@@ -28,7 +28,7 @@ int main(int argc, char* argv[]){
 
 		printf("Ready> ");
 		//getline(&input, &len, stdin);
-		scanf("%s %s %d", transactionType, accountNum1, amount);
+		scanf("%s %s %d", &transactionType, vals->accountNum1, vals->amount);
 
 
 		if(strcasecmp(transactionType,"quit\n") == 0){
@@ -41,9 +41,9 @@ int main(int argc, char* argv[]){
 							printf("Invalid transaction type. Only Credit, Debit, or Transfer transactions allowed or type quit to exit.\n");
 					}else{
 							if(strcasecmp(transactionType, "credit") == 0){
-								vals.accountNum1 = accountNum1;
+								vals.accountNum1
 								vals.accountNum2 = NULL;
-								vals.amount = amount;
+								vals.amount
 								result = vb_credit_1(&vals, remote_client);
 								if (result == NULL) {
 									clnt_perror(remote_client, "127.0.0.1");
