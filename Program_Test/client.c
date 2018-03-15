@@ -8,8 +8,6 @@ int main(int argc, char* argv[]){
 	CLIENT *remote_client;
 	char* input = NULL;
 	char* transactionType;
-	char* accountNum1;
-	char* accountNum2;
 	int amount = 0;
 	int count = 0;
 	size_t len = 0;
@@ -40,7 +38,7 @@ int main(int argc, char* argv[]){
 					}else{
 							if(strcasecmp(transactionType, "credit") == 0){
 								vals.accountNum1 = strtok(NULL, " ");
-								vals.accountNum2[0] = '\0';
+								vals.accountNum2 = "";
 								vals.amount = atoi(strtok(NULL, " "));
 								result = vb_credit_1(&vals, remote_client);
 								if (result == NULL) {
@@ -55,7 +53,7 @@ int main(int argc, char* argv[]){
 
 							}else if(strcasecmp(transactionType, "debit") == 0){
 								vals.accountNum1 = strtok(NULL, " ");
-								vals.accountNum2[0] = '\0';
+								vals.accountNum2 = "";
 								vals.amount = atoi(strtok(NULL, " "));
 								result = vb_debit_1(&vals,remote_client);
 								if (result == NULL) {

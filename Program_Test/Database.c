@@ -229,6 +229,7 @@ int accountLookUP(char* accountNum){
 	//int location = 0;
 	char sql[300];
 	db_data theData;
+	theData.bank_location = 0;
 	//theData.row_count = 0;
 
 	//sqlite3* bank1_db;
@@ -266,6 +267,9 @@ int credit(int bank, char*accountNum, int amount){
 	sqlite3* db;
 	char sql[300];
 	db_data theData;
+	theData.remaining_balance = 0;
+	theData.bank_location = 0;
+	theData.id = 0;
 
 	db = openDBConnection(bank, db);
 	sprintf(sql, "SELECT * FROM TRANSACTIONS WHERE ACCOUNT_NUMBER = '%s' ORDER BY ID DESC LIMIT 1", accountNum);

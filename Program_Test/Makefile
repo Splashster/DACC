@@ -15,7 +15,7 @@ $(PROG_CLIENT): $(PROG_CLIENT).o virtualbank_clnt.o virtualbank_xdr.o
 $(PROG_CLIENT).o: virtualbank.h $(PROG_CLIENT).c
 virtualbank_clnt.o: virtualbank_clnt.c
 
-$(PROG_SERVER): $(PROG_SERVER).o virtualbank_proc.o virtualbank_xdr.o bank1_xdr.o bank1_clnt.o bank2_xdr.o bank2_clnt.o Database.o 
+$(PROG_SERVER): $(PROG_SERVER).o virtualbank_proc.o virtualbank_xdr.o bank1_xdr.o bank1_clnt.o bank2_xdr.o bank2_clnt.o Database.o
 $(PROG_SERVER).o: virtualbank.h bank1.h bank2.h Database.h $(PROG_SERVER).c
 bank1_clnt.o: bank1_clnt.c
 bank2_clnt.o: bank2_clnt.c
@@ -52,7 +52,7 @@ Database.o: Database.c Database.h
 
 
 .PHONY: clean depend
-clean: 
+clean:
 	rm -f $(PROG_CLIENT) $(PROG_SERVER) *.o virtualbank_svc.c virtualbank.h virtualbank_clnt.c virtualbank_xdr.c make.depend
 	rm -f $(PROG_BANK1) $(PROG_BANK2) bank1.h bank2.h bank1_clnt.c bank2_clnt.c bank1_svc.c bank2_svc.c bank1_xdr.c bank2_xdr.c bank1.db bank2.db virtualbank.db
 
