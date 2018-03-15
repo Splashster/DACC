@@ -28,9 +28,8 @@ int main(int argc, char* argv[]){
 
 		printf("Ready> ");
 		//getline(&input, &len, stdin);
-		scanf("%s", &transactionType);
-		scanf("%s", &accountNum1);
-		scanf("%d", &amount);
+		scanf("%s %s %d", &transactionType, &accountNum1, &amount);
+
 
 		if(strcasecmp(transactionType,"quit\n") == 0){
 			printf("Goodbye\n");
