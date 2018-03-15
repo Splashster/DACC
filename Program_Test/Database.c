@@ -15,14 +15,18 @@ void closeDB(sqlite3* db){
 	sqlite3_close(db);
 }
 
+int created_db1 = 0;
+int created_db2 = 0;
+int created_db3 = 0;
+
 static int lookUpQueryCallback(void *Used, int argc, char **argv, char **azColName) {
    db_data *theData = (db_data *)Used;
    theData->bank_location = atoi(argv[0]);
-   /*int i;
-
+   int i;
+   printf("I got nothing\n");
    for(i = 0; i<argc; i++) {
       printf("I'm here %s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
-  }*/
+  }
    return 0;
 }
 
@@ -84,7 +88,7 @@ int lookUpQuery(sqlite3 *db, char* sql, db_data theData){
    	} else {
       fprintf(stdout, "Table created successfully\n");
    	/}*/
-    //printf("Rowcount: %i\n", theData.row_count);
+    printf("Location: %i\n", theData.bank_location);
    	return theData.bank_location;
 
 }
@@ -203,15 +207,18 @@ sqlite3* openDBConnection(int bank, sqlite3* db){
 void setupDB(int bank){
 	sqlite3* db;
 
-	if(bank == 1){
+	if(bank == 1 && created_db1 == 0){
 		db = openDBConnection(1, db);
-		initializeDB(db, "/home/coursework/DistributedAndCloudComputing/Program_2/Bank1/Bank1.txt", "BANK1");
-	}else if(bank == 2){
+		initializeDB(db, "/home/coursework/DistributedAndCloudComputing/Program_Test/Bank1.txt", "BANK1");
+		created_db1 = 1;
+	}else if(bank == 2 && created_db2 == 0){
 		db = openDBConnection(2, db);
-		initializeDB(db, "/home/coursework/DistributedAndCloudComputing/Program_2/Bank2/Bank2.txt", "BANK2");
-	}else{
+		initializeDB(db, "/home/coursework/DistributedAndCloudComputing/Program_Test/Bank2.txt", "BANK2");
+		created_db2 = 1;
+	}else if(bank == 3 && created_db3 == 0){
 		db = openDBConnection(3, db);
-		initializeDB(db, "/home/coursework/DistributedAndCloudComputing/Program_2/VirtualBank/AccountMapping.txt", "VIRTUALBANK");
+		initializeDB(db, "/home/coursework/DistributedAndCloudComputing/Program_Test/AccountMapping.txt", "VIRTUALBANK");
+		created_db3 = 1;
 	}
 
 	closeDB(db);
@@ -235,7 +242,7 @@ int accountLookUP(char* accountNum){
 
 	sprintf(sql, "SELECT BANK_LOCATION FROM ACCOUNT_MAPPING where ACCOUNT_NUMBER = '%s' LIMIT 1", accountNum);
 	theData.bank_location = lookUpQuery(virtual_db, sql, theData);
-	//printf("Location: %i\n", theData.bank_location);
+	printf("Location: %i\n", theData.bank_location);
 	//printf("Row Count for Bank 1: %i\n", result);
 	/*if(result == 1){
 		location = 1;

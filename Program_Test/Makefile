@@ -54,7 +54,7 @@ Database.o: Database.c Database.h
 .PHONY: clean depend
 clean: 
 	rm -f $(PROG_CLIENT) $(PROG_SERVER) *.o virtualbank_svc.c virtualbank.h virtualbank_clnt.c virtualbank_xdr.c make.depend
-	rm -f $(PROG_BANK1) $(PROG_BANK2) bank1.h bank2.h bank1_clnt.c bank2_clnt.c bank1_svc.c bank2_svc.c bank1_xdr.c bank2_xdr.c
+	rm -f $(PROG_BANK1) $(PROG_BANK2) bank1.h bank2.h bank1_clnt.c bank2_clnt.c bank1_svc.c bank2_svc.c bank1_xdr.c bank2_xdr.c bank1.db bank2.db virtualbank.db
 
 depend: virtualbank.h
 	touch make.depend

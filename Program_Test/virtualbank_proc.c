@@ -6,15 +6,20 @@
 #include "virtualbank.h"
 
 
-void intializeDatabase(){
+void intializeDatabases(){
+	setupDB(1);
+	setupDB(2);
 	setupDB(3);
 }
 
 int *vb_credit_1(accountInfo *vals, CLIENT *cl){
 	int result = 0;
 	int* transactionResult = 0;
+	intializeDatabases();
 
 	result = accountLookUP(vals->accountNum1);
+
+	printf("The account was:%s", vals->accountNum1);
 
 	if(result == 1){
 		cl = clnt_create("127.0.0.1", BANK1, VER2, "tcp");			
@@ -23,7 +28,7 @@ int *vb_credit_1(accountInfo *vals, CLIENT *cl){
 			exit(1);
 		}
 		bank1AccountInfo *b1_info = (bank1AccountInfo*) &vals;
-		printf("Account: %s located at Bank 1\n", vals->accountNum1);
+		printf("Account: %s located at Bank 1\n", b1_info->accountNum1);
 		transactionResult = b1_credit_2(b1_info, cl);
 	}else if(result == 2){
 		cl = clnt_create("127.0.0.1", BANK2, VER3, "tcp");			
@@ -44,6 +49,7 @@ int *vb_credit_1(accountInfo *vals, CLIENT *cl){
 int *vb_debit_1(accountInfo *vals, CLIENT *cl){
 	int result = 0;
 	int* transactionResult = 0;
+	intializeDatabases();
 
 	result = accountLookUP(vals->accountNum1);
 
@@ -76,6 +82,7 @@ int *vb_debit_1(accountInfo *vals, CLIENT *cl){
 int *vb_transfer_1(accountInfo *vals, CLIENT *cl){
 	int acc1_location = 0;
 	int acc2_location = 0;
+	intializeDatabases();
 	bank1AccountInfo *b1_info = (bank1AccountInfo*) &vals;
 	bank2AccountInfo *b2_info = (bank2AccountInfo*) &vals;
 	int* transactionResult = 0;
