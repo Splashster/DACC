@@ -3,7 +3,7 @@
  * It was generated using rpcgen.
  */
 
-#include "Bank1/bank1.h"
+#include "bank1.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <rpc/pmap_clnt.h>
@@ -11,7 +11,6 @@
 #include <memory.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include "../Database/Database.h"
 
 #ifndef SIG_PF
 #define SIG_PF void(*)(int)
@@ -68,14 +67,6 @@ bank1_2(struct svc_req *rqstp, register SVCXPRT *transp)
 int
 main (int argc, char **argv)
 {
-	int dbInitialized = 0;
-
-	if(dbInitialized == 0){
-		setupDB(2);
-		dbInitialized = 1;
-	}
-
-
 	register SVCXPRT *transp;
 
 	pmap_unset (BANK1, VER2);

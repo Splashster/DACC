@@ -3,10 +3,10 @@
  * It was generated using rpcgen.
  */
 
-#include "bank2.h"
+#include "bank1.h"
 
 bool_t
-xdr_accountInfo (XDR *xdrs, accountInfo *objp)
+xdr_bank1AccountInfo (XDR *xdrs, bank1AccountInfo *objp)
 {
 	register int32_t *buf;
 

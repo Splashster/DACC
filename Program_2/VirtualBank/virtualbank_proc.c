@@ -11,7 +11,7 @@ void intializeDatabase(){
 
 int *vb_credit_1(struct accountInfo *vals, CLIENT *cl){
 	int result = 0;
-	int transactionResult = 0;
+	static int transactionResult = 0;
 
 	result = accountLookUP(vals->accountNum1);
 
@@ -30,7 +30,7 @@ int *vb_credit_1(struct accountInfo *vals, CLIENT *cl){
 
 int *vb_debit_1(struct accountInfo *vals, CLIENT *cl){
 	int result = 0;
-	int transactionResult = 0;
+	static int transactionResult = 0;
 
 	result = accountLookUP(vals->accountNum1);
 
@@ -51,7 +51,7 @@ int *vb_debit_1(struct accountInfo *vals, CLIENT *cl){
 int *vb_transfer_1(struct accountInfo *vals, CLIENT *cl){
 	int acc1_location = 0;
 	int acc2_location = 0;
-	int transactionResult = 0;
+	static int transactionResult = 0;
 
 	acc1_location = accountLookUP(vals->accountNum1);
 	acc2_location = accountLookUP(vals->accountNum2);

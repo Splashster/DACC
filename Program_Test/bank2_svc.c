@@ -20,8 +20,8 @@ static void
 bank2_3(struct svc_req *rqstp, register SVCXPRT *transp)
 {
 	union {
-		accountInfo b2_credit_3_arg;
-		accountInfo b2_debit_3_arg;
+		bank2AccountInfo b2_credit_3_arg;
+		bank2AccountInfo b2_debit_3_arg;
 	} argument;
 	char *result;
 	xdrproc_t _xdr_argument, _xdr_result;
@@ -33,13 +33,13 @@ bank2_3(struct svc_req *rqstp, register SVCXPRT *transp)
 		return;
 
 	case b2_credit:
-		_xdr_argument = (xdrproc_t) xdr_accountInfo;
+		_xdr_argument = (xdrproc_t) xdr_bank2AccountInfo;
 		_xdr_result = (xdrproc_t) xdr_int;
 		local = (char *(*)(char *, struct svc_req *)) b2_credit_3_svc;
 		break;
 
 	case b2_debit:
-		_xdr_argument = (xdrproc_t) xdr_accountInfo;
+		_xdr_argument = (xdrproc_t) xdr_bank2AccountInfo;
 		_xdr_result = (xdrproc_t) xdr_int;
 		local = (char *(*)(char *, struct svc_req *)) b2_debit_3_svc;
 		break;

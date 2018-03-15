@@ -4,18 +4,18 @@
  */
 
 #include <memory.h> /* for memset */
-#include "bank2.h"
+#include "virtualbank.h"
 
 /* Default timeout can be changed using clnt_control() */
 static struct timeval TIMEOUT = { 25, 0 };
 
 int *
-b2_credit_3(accountInfo *argp, CLIENT *clnt)
+vb_credit_1(accountInfo *argp, CLIENT *clnt)
 {
 	static int clnt_res;
 
 	memset((char *)&clnt_res, 0, sizeof(clnt_res));
-	if (clnt_call (clnt, b2_credit,
+	if (clnt_call (clnt, vb_credit,
 		(xdrproc_t) xdr_accountInfo, (caddr_t) argp,
 		(xdrproc_t) xdr_int, (caddr_t) &clnt_res,
 		TIMEOUT) != RPC_SUCCESS) {
@@ -25,12 +25,27 @@ b2_credit_3(accountInfo *argp, CLIENT *clnt)
 }
 
 int *
-b2_debit_3(accountInfo *argp, CLIENT *clnt)
+vb_debit_1(accountInfo *argp, CLIENT *clnt)
 {
 	static int clnt_res;
 
 	memset((char *)&clnt_res, 0, sizeof(clnt_res));
-	if (clnt_call (clnt, b2_debit,
+	if (clnt_call (clnt, vb_debit,
+		(xdrproc_t) xdr_accountInfo, (caddr_t) argp,
+		(xdrproc_t) xdr_int, (caddr_t) &clnt_res,
+		TIMEOUT) != RPC_SUCCESS) {
+		return (NULL);
+	}
+	return (&clnt_res);
+}
+
+int *
+vb_transfer_1(accountInfo *argp, CLIENT *clnt)
+{
+	static int clnt_res;
+
+	memset((char *)&clnt_res, 0, sizeof(clnt_res));
+	if (clnt_call (clnt, vb_transfer,
 		(xdrproc_t) xdr_accountInfo, (caddr_t) argp,
 		(xdrproc_t) xdr_int, (caddr_t) &clnt_res,
 		TIMEOUT) != RPC_SUCCESS) {

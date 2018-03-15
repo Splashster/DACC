@@ -3,7 +3,7 @@
  * It was generated using rpcgen.
  */
 
-#include "bank2.h"
+#include "bank1.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <rpc/pmap_clnt.h>
@@ -17,11 +17,11 @@
 #endif
 
 static void
-bank2_3(struct svc_req *rqstp, register SVCXPRT *transp)
+bank1_2(struct svc_req *rqstp, register SVCXPRT *transp)
 {
 	union {
-		accountInfo b2_credit_3_arg;
-		accountInfo b2_debit_3_arg;
+		bank1AccountInfo b1_credit_2_arg;
+		bank1AccountInfo b1_debit_2_arg;
 	} argument;
 	char *result;
 	xdrproc_t _xdr_argument, _xdr_result;
@@ -32,16 +32,16 @@ bank2_3(struct svc_req *rqstp, register SVCXPRT *transp)
 		(void) svc_sendreply (transp, (xdrproc_t) xdr_void, (char *)NULL);
 		return;
 
-	case b2_credit:
-		_xdr_argument = (xdrproc_t) xdr_accountInfo;
+	case b1_credit:
+		_xdr_argument = (xdrproc_t) xdr_bank1AccountInfo;
 		_xdr_result = (xdrproc_t) xdr_int;
-		local = (char *(*)(char *, struct svc_req *)) b2_credit_3_svc;
+		local = (char *(*)(char *, struct svc_req *)) b1_credit_2_svc;
 		break;
 
-	case b2_debit:
-		_xdr_argument = (xdrproc_t) xdr_accountInfo;
+	case b1_debit:
+		_xdr_argument = (xdrproc_t) xdr_bank1AccountInfo;
 		_xdr_result = (xdrproc_t) xdr_int;
-		local = (char *(*)(char *, struct svc_req *)) b2_debit_3_svc;
+		local = (char *(*)(char *, struct svc_req *)) b1_debit_2_svc;
 		break;
 
 	default:
@@ -69,15 +69,15 @@ main (int argc, char **argv)
 {
 	register SVCXPRT *transp;
 
-	pmap_unset (BANK2, VER3);
+	pmap_unset (BANK1, VER2);
 
 	transp = svcudp_create(RPC_ANYSOCK);
 	if (transp == NULL) {
 		fprintf (stderr, "%s", "cannot create udp service.");
 		exit(1);
 	}
-	if (!svc_register(transp, BANK2, VER3, bank2_3, IPPROTO_UDP)) {
-		fprintf (stderr, "%s", "unable to register (BANK2, VER3, udp).");
+	if (!svc_register(transp, BANK1, VER2, bank1_2, IPPROTO_UDP)) {
+		fprintf (stderr, "%s", "unable to register (BANK1, VER2, udp).");
 		exit(1);
 	}
 
@@ -86,8 +86,8 @@ main (int argc, char **argv)
 		fprintf (stderr, "%s", "cannot create tcp service.");
 		exit(1);
 	}
-	if (!svc_register(transp, BANK2, VER3, bank2_3, IPPROTO_TCP)) {
-		fprintf (stderr, "%s", "unable to register (BANK2, VER3, tcp).");
+	if (!svc_register(transp, BANK1, VER2, bank1_2, IPPROTO_TCP)) {
+		fprintf (stderr, "%s", "unable to register (BANK1, VER2, tcp).");
 		exit(1);
 	}
 

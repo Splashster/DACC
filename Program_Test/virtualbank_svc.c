@@ -3,7 +3,7 @@
  * It was generated using rpcgen.
  */
 
-#include "bank2.h"
+#include "virtualbank.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <rpc/pmap_clnt.h>
@@ -17,11 +17,12 @@
 #endif
 
 static void
-bank2_3(struct svc_req *rqstp, register SVCXPRT *transp)
+virtualbank_1(struct svc_req *rqstp, register SVCXPRT *transp)
 {
 	union {
-		accountInfo b2_credit_3_arg;
-		accountInfo b2_debit_3_arg;
+		accountInfo vb_credit_1_arg;
+		accountInfo vb_debit_1_arg;
+		accountInfo vb_transfer_1_arg;
 	} argument;
 	char *result;
 	xdrproc_t _xdr_argument, _xdr_result;
@@ -32,16 +33,22 @@ bank2_3(struct svc_req *rqstp, register SVCXPRT *transp)
 		(void) svc_sendreply (transp, (xdrproc_t) xdr_void, (char *)NULL);
 		return;
 
-	case b2_credit:
+	case vb_credit:
 		_xdr_argument = (xdrproc_t) xdr_accountInfo;
 		_xdr_result = (xdrproc_t) xdr_int;
-		local = (char *(*)(char *, struct svc_req *)) b2_credit_3_svc;
+		local = (char *(*)(char *, struct svc_req *)) vb_credit_1_svc;
 		break;
 
-	case b2_debit:
+	case vb_debit:
 		_xdr_argument = (xdrproc_t) xdr_accountInfo;
 		_xdr_result = (xdrproc_t) xdr_int;
-		local = (char *(*)(char *, struct svc_req *)) b2_debit_3_svc;
+		local = (char *(*)(char *, struct svc_req *)) vb_debit_1_svc;
+		break;
+
+	case vb_transfer:
+		_xdr_argument = (xdrproc_t) xdr_accountInfo;
+		_xdr_result = (xdrproc_t) xdr_int;
+		local = (char *(*)(char *, struct svc_req *)) vb_transfer_1_svc;
 		break;
 
 	default:
@@ -69,15 +76,15 @@ main (int argc, char **argv)
 {
 	register SVCXPRT *transp;
 
-	pmap_unset (BANK2, VER3);
+	pmap_unset (VIRTUALBANK, VER1);
 
 	transp = svcudp_create(RPC_ANYSOCK);
 	if (transp == NULL) {
 		fprintf (stderr, "%s", "cannot create udp service.");
 		exit(1);
 	}
-	if (!svc_register(transp, BANK2, VER3, bank2_3, IPPROTO_UDP)) {
-		fprintf (stderr, "%s", "unable to register (BANK2, VER3, udp).");
+	if (!svc_register(transp, VIRTUALBANK, VER1, virtualbank_1, IPPROTO_UDP)) {
+		fprintf (stderr, "%s", "unable to register (VIRTUALBANK, VER1, udp).");
 		exit(1);
 	}
 
@@ -86,8 +93,8 @@ main (int argc, char **argv)
 		fprintf (stderr, "%s", "cannot create tcp service.");
 		exit(1);
 	}
-	if (!svc_register(transp, BANK2, VER3, bank2_3, IPPROTO_TCP)) {
-		fprintf (stderr, "%s", "unable to register (BANK2, VER3, tcp).");
+	if (!svc_register(transp, VIRTUALBANK, VER1, virtualbank_1, IPPROTO_TCP)) {
+		fprintf (stderr, "%s", "unable to register (VIRTUALBANK, VER1, tcp).");
 		exit(1);
 	}
 

@@ -6,7 +6,7 @@
 #include "bank2.h"
 
 bool_t
-xdr_accountInfo (XDR *xdrs, accountInfo *objp)
+xdr_bank2AccountInfo (XDR *xdrs, bank2AccountInfo *objp)
 {
 	register int32_t *buf;
 

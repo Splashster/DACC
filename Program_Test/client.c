@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <rpc/rpc.h>
-#include "VirtualBank/virtualbank.h"
+#include "virtualbank.h"
 
 int main(int argc, char* argv[]){
 	CLIENT *remote_client;
@@ -17,9 +17,9 @@ int main(int argc, char* argv[]){
 	FILE *file;
 	struct accountInfo vals;
 
-	remote_client = clnt_create(argv[1], VIRTUALBANK, VER1, "tcp");			
+	remote_client = clnt_create("127.0.0.1", VIRTUALBANK, VER1, "tcp");			
 	if (remote_client == NULL) {
-		clnt_pcreateerror(argv[1]);
+		clnt_pcreateerror("127.0.0.1");
 		exit(1);
 	}
 	
@@ -44,7 +44,7 @@ int main(int argc, char* argv[]){
 								vals.amount = atoi(strtok(NULL, " "));
 								result = vb_credit_1(&vals, remote_client);
 								if (result == NULL) {
-									clnt_perror(remote_client, argv[1]);
+									clnt_perror(remote_client, "127.0.0.1");
 									exit(1);
 								}
 								if(result != 0){
@@ -59,7 +59,7 @@ int main(int argc, char* argv[]){
 								vals.amount = atoi(strtok(NULL, " "));
 								result = vb_debit_1(&vals,remote_client);
 								if (result == NULL) {
-									clnt_perror(remote_client, argv[1]);
+									clnt_perror(remote_client, "127.0.0.1");
 									exit(1);
 								}
 								if(result != 0){
@@ -74,7 +74,7 @@ int main(int argc, char* argv[]){
 								vals.amount = atoi(strtok(NULL, " "));
 								result = vb_transfer_1(&vals, remote_client);
 								if (result == NULL) {
-									clnt_perror(remote_client, argv[1]);
+									clnt_perror(remote_client, "127.0.0.1");
 									exit(1);
 								}
 								if(result != 0){

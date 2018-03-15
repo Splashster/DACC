@@ -11,7 +11,6 @@
 #include <memory.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include "../Database/Database.h"
 
 #ifndef SIG_PF
 #define SIG_PF void(*)(int)
@@ -75,13 +74,6 @@ virtualbank_1(struct svc_req *rqstp, register SVCXPRT *transp)
 int
 main (int argc, char **argv)
 {
-	int dbInitliazed = 0;
-
-	if(dbInitliazed == 0){
-		setupDB(1);
-		dbInitliazed = 1;
-	}
-
 	register SVCXPRT *transp;
 
 	pmap_unset (VIRTUALBANK, VER1);

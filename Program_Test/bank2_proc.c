@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <rpc/rpc.h>
-#include "../Database/Database.h"
+#include "Database/Database.h"
 
 int *b2_credit(struct accountInfo *vals, CLIENT *cl){
 	static int result = 0;
@@ -21,13 +21,13 @@ int *b2_debit(struct accountInfo *vals, CLIENT *cl){
 }
 
 
-int *b2_credit_3_svc(struct sum_in *vals,
+int *b2_credit_3_svc(struct bank2AccountInfo *vals,
    struct svc_req *svc) {
   CLIENT *client;
   return(b2_credit_3(vals,client));
 }
 
-int *b2_debit_3_svc(struct sum_in *vals,
+int *b2_debit_3_svc(struct bank2AccountInfo *vals,
    struct svc_req *svc) {
   CLIENT *client;
   return(b1_debit_3(vals,client));

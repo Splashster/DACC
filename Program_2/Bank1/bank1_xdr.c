@@ -3,7 +3,7 @@
  * It was generated using rpcgen.
  */
 
-#include "Bank1/bank1.h"
+#include "bank1.h"
 
 bool_t
 xdr_accountInfo (XDR *xdrs, accountInfo *objp)
