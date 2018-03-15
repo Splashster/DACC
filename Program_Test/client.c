@@ -15,7 +15,7 @@ int main(int argc, char* argv[]){
 	size_t len = 0;
 	int* result = 0;
 	FILE *file;
-	struct accountInfo vals;
+	accountInfo vals;
 
 	remote_client = clnt_create("127.0.0.1", VIRTUALBANK, VER1, "tcp");
 	if (remote_client == NULL) {
