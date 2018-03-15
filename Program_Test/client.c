@@ -41,7 +41,7 @@ int main(int argc, char* argv[]){
 							printf("Invalid transaction type. Only Credit, Debit, or Transfer transactions allowed or type quit to exit.\n");
 					}else{
 							if(strcasecmp(transactionType, "credit") == 0){
-								vals.accountNum2 = NULL;
+								vals.accountNum2 = " ";
 								result = vb_credit_1(&vals, remote_client);
 								if (result == NULL) {
 									clnt_perror(remote_client, "127.0.0.1");
@@ -54,9 +54,9 @@ int main(int argc, char* argv[]){
 								}
 
 							}else if(strcasecmp(transactionType, "debit") == 0){
-								vals.accountNum1 = strtok(NULL, " ");
-								vals.accountNum2 = NULL;
-								vals.amount = atoi(strtok(NULL, " "));
+								//vals.accountNum1 = strtok(NULL, " ");
+								//vals.accountNum2 = NULL;
+								//vals.amount = atoi(strtok(NULL, " "));
 								result = vb_debit_1(&vals,remote_client);
 								if (result == NULL) {
 									clnt_perror(remote_client, "127.0.0.1");
@@ -69,9 +69,9 @@ int main(int argc, char* argv[]){
 								}
 
 							}else{
-								vals.accountNum1 = strtok(NULL, " ");
-								vals.accountNum2 = strtok(NULL, " ");
-								vals.amount = atoi(strtok(NULL, " "));
+								//vals.accountNum1 = strtok(NULL, " ");
+								//vals.accountNum2 = strtok(NULL, " ");
+								//vals.amount = atoi(strtok(NULL, " "));
 								result = vb_transfer_1(&vals, remote_client);
 								if (result == NULL) {
 									clnt_perror(remote_client, "127.0.0.1");
