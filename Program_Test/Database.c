@@ -12,7 +12,7 @@ typedef struct{
 }db_data;
 
 void closeDB(sqlite3* db){
-	sqlite3_close(db1);
+	sqlite3_close(db);
 }
 
 static int lookUpQueryCallback(void *Used, int argc, char **argv, char **azColName) {

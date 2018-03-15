@@ -1,7 +1,7 @@
 # Makefile for compiling a C++ program with the Lua library
 CC=gcc
 CFLAGS= -g
-LDFLAGS=-g
+LDFLAGS=-g -l sqlite3
 
 PROG_CLIENT=client
 PROG_SERVER=virtualbank_svc
@@ -15,8 +15,8 @@ $(PROG_CLIENT): $(PROG_CLIENT).o virtualbank_clnt.o virtualbank_xdr.o
 $(PROG_CLIENT).o: virtualbank.h $(PROG_CLIENT).c
 virtualbank_clnt.o: virtualbank_clnt.c
 
-$(PROG_SERVER): $(PROG_SERVER).o virtualbank_proc.o virtualbank_xdr.o bank1_xdr.o bank1_clnt.o bank2_xdr.o bank2_clnt.o
-$(PROG_SERVER).o: virtualbank.h bank1.h bank2.h $(PROG_SERVER).c
+$(PROG_SERVER): $(PROG_SERVER).o virtualbank_proc.o virtualbank_xdr.o bank1_xdr.o bank1_clnt.o bank2_xdr.o bank2_clnt.o Database.o 
+$(PROG_SERVER).o: virtualbank.h bank1.h bank2.h Database.h $(PROG_SERVER).c
 bank1_clnt.o: bank1_clnt.c
 bank2_clnt.o: bank2_clnt.c
 
@@ -27,9 +27,9 @@ virtualbank_xdr.o: virtualbank.h virtualbank_xdr.c
 virtualbank.h: virtualbank.x
 	rpcgen virtualbank.x
 
-$(PROG_BANK1):$(PROG_BANK1).o bank1_proc.o bank1_xdr.o
+$(PROG_BANK1):$(PROG_BANK1).o bank1_proc.o bank1_xdr.o Database.o
 
-$(PROG_BANK2):$(PROG_BANK2).o bank2_proc.o bank2_xdr.o
+$(PROG_BANK2):$(PROG_BANK2).o bank2_proc.o bank2_xdr.o Database.o
 
 bank1_proc.o: bank1_proc.c
 bank1_svc.o: bank1_svc.c
@@ -44,6 +44,9 @@ bank2_xdr.o: bank2.h bank2_xdr.c
 
 bank2.h: bank2.x
 	rpcgen bank2.x
+
+
+Database.o: Database.c Database.h
 
 
 

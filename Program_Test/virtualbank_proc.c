@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <sqlite3.h>
-#include "Database/Database.h"
+#include "Database.h"
 #include "bank1.h"
 #include "bank2.h"
 #include "virtualbank.h"
