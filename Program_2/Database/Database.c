@@ -11,17 +11,8 @@ typedef struct{
 	int id;
 }db_data;
 
-void closeDB(sqlite3* db1, sqlite3* db2, sqlite3* db3){
-	if(db1!=NULL){
-		sqlite3_close(db1);
-	}
-	if(db2!=NULL){
-		sqlite3_close(db2);
-	}
-	if(db3!=NULL){
-		sqlite3_close(db3);
-	}
-
+void closeDB(sqlite3* db){
+	sqlite3_close(db1);
 }
 
 static int lookUpQueryCallback(void *Used, int argc, char **argv, char **azColName) {
@@ -131,7 +122,7 @@ void initializeDB(sqlite3 *db, char* filename, char* bank){
 
 
 	if(strcmp(bank,"VIRTUALBANK") == 0){
-		sprintf(sql, "CREATE TABLE ACCOUNT_MAPPING (ID INTEGER PRIMARY KEY NOT NULL, ACCOUNT_NUMBER INT NOT NULL, BANK_LOCATION INTEGER NOT NULL)");
+		sprintf(sql, "CREATE TABLE ACCOUNT_MAPPING (ID INTEGER PRIMARY KEY NOT NULL, ACCOUNT_NUMBER VARCHAR(50) NOT NULL, BANK_LOCATION INTEGER NOT NULL)");
 		//printf("SQL: %s\n",sql);
 		addQuery(db, sql);
 
@@ -153,7 +144,7 @@ void initializeDB(sqlite3 *db, char* filename, char* bank){
 		   	fclose(file);
 		}
 	}else{
-		sprintf(sql, "CREATE TABLE TRANSACTIONS (ID INTEGER PRIMARY KEY NOT NULL, ACCOUNT_NUMBER INT NOT NULL, TRANSACTION_TYPE VARCHAR(10) NOT NULL, TRANSACTION_AMOUNT DECIMAL(10,2) NOT NULL, CURRENT_BALANCE DECIMAL(10,2) NOT NULL)");
+		sprintf(sql, "CREATE TABLE TRANSACTIONS (ID INTEGER PRIMARY KEY NOT NULL, ACCOUNT_NUMBER VARCHAR(50) NOT NULL, TRANSACTION_TYPE VARCHAR(10) NOT NULL, TRANSACTION_AMOUNT DECIMAL(10,2) NOT NULL, CURRENT_BALANCE DECIMAL(10,2) NOT NULL)");
 		addQuery(db, sql);
 
 	  file = fopen(filename, "r");
@@ -209,21 +200,21 @@ sqlite3* openDBConnection(int bank, sqlite3* db){
 	return db;
 }
 
-void setupDB(){
-	sqlite3* bank1_db;
-	sqlite3* bank2_db;
-	sqlite3* virtual_db;
+void setupDB(int bank){
+	sqlite3* db;
 
+	if(bank == 1){
+		db = openDBConnection(1, db);
+		initializeDB(db, "/home/coursework/DistributedAndCloudComputing/Program_2/Bank1/Bank1.txt", "BANK1");
+	}else if(bank == 2){
+		db = openDBConnection(2, db);
+		initializeDB(db, "/home/coursework/DistributedAndCloudComputing/Program_2/Bank2/Bank2.txt", "BANK2");
+	}else{
+		db = openDBConnection(3, db);
+		initializeDB(db, "/home/coursework/DistributedAndCloudComputing/Program_2/VirtualBank/AccountMapping.txt", "VIRTUALBANK");
+	}
 
-	bank1_db = openDBConnection(1, bank1_db);
-	bank2_db = openDBConnection(2, bank2_db);
-	virtual_db = openDBConnection(3, virtual_db);
-
-	initializeDB(virtual_db, "/home/coursework/DistributedAndCloudComputing/Program_2/VirtualBank/AccountMapping.txt", "VIRTUALBANK");
-	initializeDB(bank1_db, "/home/coursework/DistributedAndCloudComputing/Program_2/Bank1/Bank1.txt", "BANK1");
-	initializeDB(bank2_db, "/home/coursework/DistributedAndCloudComputing/Program_2/Bank2/Bank2.txt", "BANK2");
-
-	closeDB(bank1_db, bank2_db, virtual_db);
+	closeDB(db);
 }
 
 int accountLookUP(char* accountNum){
@@ -260,7 +251,7 @@ int accountLookUP(char* accountNum){
 		printf("Whoops there was a problem\n");
 	}
 
-	closeDB(virtual_db,NULL,NULL);
+	closeDB(virtual_db);
 	return theData.bank_location;
 }
 
@@ -285,7 +276,7 @@ int credit(int bank, char*accountNum, int amount){
 	theData = fundsQuery(db,sql,theData);
 	printf("New Balance for Account: %s is: %i\n", accountNum, theData.remaining_balance);
 
-	closeDB(db, NULL, NULL);
+	closeDB(db);
 	return 1;
 }
 
@@ -314,7 +305,7 @@ int debit(int bank, char* accountNum, int amount){
 
 	}
 
-	closeDB(db, NULL, NULL);
+	closeDB(db);
 
 	return transactionProcessed;
 }
