@@ -17,15 +17,15 @@ int main(int argc, char* argv[]){
 	FILE *file;
 	struct accountInfo vals;
 
-	remote_client = clnt_create("127.0.0.1", VIRTUALBANK, VER1, "tcp");			
+	remote_client = clnt_create("127.0.0.1", VIRTUALBANK, VER1, "tcp");
 	if (remote_client == NULL) {
 		clnt_pcreateerror("127.0.0.1");
 		exit(1);
 	}
-	
+
 
 	while(1){
-		
+
 		printf("Ready> ");
 		getline(&input, &len, stdin);
 
@@ -39,7 +39,7 @@ int main(int argc, char* argv[]){
 							printf("Invalid transaction type. Only Credit, Debit, or Transfer transactions allowed or type quit to exit.\n");
 					}else{
 							if(strcasecmp(transactionType, "credit") == 0){
-								vals.accountNum1 = strtok(NULL, " ");
+								strcpy(vals.accountNum1, strtok(NULL, " "));
 								vals.accountNum2 = NULL;
 								vals.amount = atoi(strtok(NULL, " "));
 								result = vb_credit_1(&vals, remote_client);
@@ -52,7 +52,7 @@ int main(int argc, char* argv[]){
 								}else{
 									printf("Error: Unable to credit funds\n");
 								}
-								
+
 							}else if(strcasecmp(transactionType, "debit") == 0){
 								vals.accountNum1 = strtok(NULL, " ");
 								vals.accountNum2 = NULL;
@@ -67,7 +67,7 @@ int main(int argc, char* argv[]){
 								}else{
 									printf("Error: not enough funds\n");
 								}
-								
+
 							}else{
 								vals.accountNum1 = strtok(NULL, " ");
 								vals.accountNum2 = strtok(NULL, " ");
@@ -82,7 +82,7 @@ int main(int argc, char* argv[]){
 								}else{
 									printf("Error: not enough funds\n");
 								}
-								
+
 							}
 
 					     }
