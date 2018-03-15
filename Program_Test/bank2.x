@@ -1,6 +1,6 @@
 struct bank2AccountInfo{
-		char accountNum1[50];
-		char accountNum2[50];
+		char* accountNum1;
+		char* accountNum2;
 		int amount;
 };
 
