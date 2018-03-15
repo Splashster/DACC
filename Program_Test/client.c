@@ -15,7 +15,7 @@ int main(int argc, char* argv[]){
 	size_t len = 0;
 	int* result = 0;
 	FILE *file;
-	accountInfo vals;
+	struct accountInfo vals;
 
 	remote_client = clnt_create("127.0.0.1", VIRTUALBANK, VER1, "tcp");
 	if (remote_client == NULL) {
@@ -27,21 +27,24 @@ int main(int argc, char* argv[]){
 	while(1){
 
 		printf("Ready> ");
-		getline(&input, &len, stdin);
+		//getline(&input, &len, stdin);
+		scanf("%s", transactionType);
+		scanf("%s", accountNum1);
+		scanf("%i", amount);
 
-		if(strcasecmp(input,"quit\n") == 0){
+		if(strcasecmp(transactionType,"quit\n") == 0){
 			printf("Goodbye\n");
 			return 0;
 		}else{
-			if(input[0] != '\n' && input[0] != ' '){
-					transactionType = strtok(input, " ");
+			if(transactionType[0] != '\n' && transactionType[0] != ' '){
+					//transactionType = strtok(input, " ");
 					if(strcasecmp(transactionType, "credit") != 0 && strcasecmp(transactionType, "debit") != 0  && strcasecmp(transactionType, "transfer") != 0){
 							printf("Invalid transaction type. Only Credit, Debit, or Transfer transactions allowed or type quit to exit.\n");
 					}else{
 							if(strcasecmp(transactionType, "credit") == 0){
-								vals->accountNum1 = strtok(NULL, " ");
-								vals->accountNum2 = NULL;
-								vals->amount = atoi(strtok(NULL, " "));
+								vals.accountNum1 = accountNum1;
+								vals.accountNum2 = NULL;
+								vals.amount = amount;
 								result = vb_credit_1(&vals, remote_client);
 								if (result == NULL) {
 									clnt_perror(remote_client, "127.0.0.1");
