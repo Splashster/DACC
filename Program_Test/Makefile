@@ -1,4 +1,4 @@
-# Makefile for compiling a C++ program with the Lua library
+# Makefile for compiling Banking Program
 CC=gcc
 CFLAGS= -g
 LDFLAGS=-g -l sqlite3
@@ -16,8 +16,8 @@ $(PROG_CLIENT): $(PROG_CLIENT).o virtualbank_clnt.o virtualbank_xdr.o
 $(PROG_CLIENT).o: virtualbank.h $(PROG_CLIENT).c
 virtualbank_clnt.o: virtualbank_clnt.c
 
-$(PROG_SERVER): $(PROG_SERVER).o virtualbank_proc.o virtualbank_xdr.o bank1_xdr.o bank1_clnt.o bank2_xdr.o bank2_clnt.o Database.o
-$(PROG_SERVER).o: virtualbank.h bank1.h bank2.h Database.h $(PROG_SERVER).c
+$(PROG_SERVER): $(PROG_SERVER).o virtualbank_proc.o virtualbank_xdr.o bank1_xdr.o bank1_clnt.o bank2_xdr.o bank2_clnt.o database.o
+$(PROG_SERVER).o: virtualbank.h bank1.h bank2.h database.h $(PROG_SERVER).c
 bank1_clnt.o: bank1_clnt.c
 bank2_clnt.o: bank2_clnt.c
 
@@ -28,9 +28,9 @@ virtualbank_xdr.o: virtualbank.h virtualbank_xdr.c
 virtualbank.h: virtualbank.x
 	rpcgen virtualbank.x
 
-$(PROG_BANK1):$(PROG_BANK1).o bank1_proc.o bank1_xdr.o Database.o
+$(PROG_BANK1):$(PROG_BANK1).o bank1_proc.o bank1_xdr.o database.o
 
-$(PROG_BANK2):$(PROG_BANK2).o bank2_proc.o bank2_xdr.o Database.o
+$(PROG_BANK2):$(PROG_BANK2).o bank2_proc.o bank2_xdr.o database.o
 
 bank1_proc.o: bank1_proc.c
 bank1_svc.o: bank1_svc.c
@@ -47,9 +47,7 @@ bank2.h: bank2.x
 	rpcgen bank2.x
 
 
-Database.o: Database.c Database.h
-
-
+database.o: database.c database.h
 
 
 .PHONY: clean depend
@@ -64,7 +62,7 @@ depend: virtualbank.h
 -include make.depend
 
 .PHONY: run_services
-run_services: run_server run_bank1 run_bank2 
+run_services: run_server run_bank1 run_bank2
 run_server: 
 	./$(PROG_SERVER)
 run_bank1:
@@ -76,7 +74,7 @@ run_bank2:
 run_client: 
 	@echo -e "credit A12345 100\n\
 	credit B12345 10000\n\
-	transfer A12345 B12345 25000\n\
+	transfer A12345 B12345 25\n\
 	transfer B12345 A12345 10\n\
 	quit" | ./$(PROG_CLIENT)
 	

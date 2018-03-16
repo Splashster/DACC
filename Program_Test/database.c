@@ -11,7 +11,7 @@ transactions were succesfully processed or not.
 #include <string.h>
 #include <sqlite3.h>
 #include <errno.h>
-#include "Database.h"
+#include "database.h"
 
 typedef struct{
 	int bank_location;
@@ -246,7 +246,7 @@ int credit(int bank, char*accountNum, int amount){
 
 	sprintf(sql, "SELECT CURRENT_BALANCE FROM TRANSACTIONS WHERE ACCOUNT_NUMBER = '%s' ORDER BY ID DESC LIMIT 1", accountNum);
 	theData.remaining_balance = fundsQuery(db,sql, theData);
-	printf("Current Balance for Account: %s is: %i\n", accountNum, theData.remaining_balance);
+	printf("Current Balance for Account: %s in BANK%i is: %i\n", accountNum, bank, theData.remaining_balance);
 
 	theData.remaining_balance += amount;
 	theData.id += 1;
@@ -256,7 +256,7 @@ int credit(int bank, char*accountNum, int amount){
 
 	sprintf(sql, "SELECT CURRENT_BALANCE FROM TRANSACTIONS WHERE ACCOUNT_NUMBER = '%s' ORDER BY ID DESC LIMIT 1", accountNum);
 	theData.remaining_balance = fundsQuery(db,sql,theData);
-	printf("New Balance for Account: %s is: %i\n", accountNum, theData.remaining_balance);
+	printf("New Balance for Account: %s in BANK%i is: %i\n\n", accountNum, bank, theData.remaining_balance);
 
 	closeDB(db);
 	return transactionProcessed;
@@ -280,7 +280,7 @@ int debit(int bank, char* accountNum, int amount){
 
 	sprintf(sql, "SELECT CURRENT_BALANCE FROM TRANSACTIONS WHERE ACCOUNT_NUMBER = '%s' ORDER BY ID DESC LIMIT 1", accountNum);
 	theData.remaining_balance = fundsQuery(db,sql, theData);
-	printf("Current Balance for Account: %s is: %i\n", accountNum, theData.remaining_balance);
+	printf("Current Balance for Account: %s in BANK%i is: %i\n", accountNum,bank, theData.remaining_balance);
 	if((theData.remaining_balance - amount) >= 0){
 		theData.remaining_balance -= amount;
 		theData.id += 1;
@@ -288,7 +288,7 @@ int debit(int bank, char* accountNum, int amount){
 		addQuery(db, sql);
 		sprintf(sql, "SELECT CURRENT_BALANCE FROM TRANSACTIONS WHERE ACCOUNT_NUMBER = '%s' ORDER BY ID DESC LIMIT 1", accountNum);
 		theData.remaining_balance = fundsQuery(db,sql,theData);
-		printf("New Balance for Account: %s is: %i\n",accountNum, theData.remaining_balance);
+		printf("New Balance for Account: %s in BANK%i is: %i\n\n",accountNum, bank, theData.remaining_balance);
 		transactionProcessed = 1;
 
 	}

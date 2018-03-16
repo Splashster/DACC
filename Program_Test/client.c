@@ -1,5 +1,5 @@
 /*************************************************************************
-The client.c file is the main driver of the Virtual Banking Program.
+The client.c file is the main driver of the Banking Program.
 This file manages the users input to see which type of transaction the user
 would like to perform as well as the amount for the transaction.
 This file also establishes a connection with the VirtualBank rpc server.
@@ -30,8 +30,9 @@ int main(int argc, char* argv[]){
 
 
 	while(1){
+		printf("Ready>");
 		getline(&input, &len, stdin);
-		printf("Ready> %s", input);
+		printf("%s", input);
 
 		if(strcasecmp(input,"quit\n") == 0){
 			printf("Goodbye\n");
