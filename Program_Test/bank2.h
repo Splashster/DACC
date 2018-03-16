@@ -15,8 +15,7 @@ extern "C" {
 
 
 struct bank2AccountInfo {
-	char *accountNum1;
-	char *accountNum2;
+	char *accountNum;
 	int amount;
 };
 typedef struct bank2AccountInfo bank2AccountInfo;

@@ -45,11 +45,12 @@ int main(int argc, char* argv[]){
 									clnt_perror(remote_client, "127.0.0.1");
 									exit(1);
 								}
-								if(result != 0){
+								if(*result == 1){
 									printf("Added %i dollars to account %s\n", vals.amount, vals.accountNum1);
-								}else{
-									printf("Error: Unable to credit funds\n");
+								}else if(*result == 3){
+									printf("Unable to locate Account Number: %s\n", vals.accountNum1);
 								}
+
 
 							}else if(strcasecmp(transactionType, "debit") == 0){
 								vals.accountNum1 = strtok(NULL, " ");
@@ -60,10 +61,12 @@ int main(int argc, char* argv[]){
 									clnt_perror(remote_client, "127.0.0.1");
 									exit(1);
 								}
-								if(result != 0){
+								if(*result == 1){
 									printf("Subtracted %i dollars to account %s\n", vals.amount, vals.accountNum1);
-								}else{
+								}else if(*result == 2){
 									printf("Error: not enough funds\n");
+								}else if(*result == 3){
+									printf("Unable to locate Account Number: %s\n", vals.accountNum1);
 								}
 
 							}else{
@@ -75,12 +78,17 @@ int main(int argc, char* argv[]){
 									clnt_perror(remote_client, "127.0.0.1");
 									exit(1);
 								}
-								if(result != 0){
+								if(*result == 1){
 									printf("Transfered %i dollars from account %s to account %s\n", vals.amount, vals.accountNum1, vals.accountNum2);
-								}else{
+								}else if(*result == 2){
 									printf("Error: not enough funds\n");
+								}else if(*result == 3){
+									printf("Unable to locate Account Number: %s\n", vals.accountNum1);
+								}else if(*result == 4){
+									printf("Unable to locate Account Number: %s\n", vals.accountNum2);
+								}else if(*result == 5){
+									printf("Unable to locate Account Number: %s and Account Number: %s\n", vals.accountNum1, vals.accountNum2);
 								}
-
 							}
 
 					     }

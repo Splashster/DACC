@@ -7,18 +7,16 @@
 
 int *b1_credit_2(struct bank1AccountInfo *vals, CLIENT *cl){
 	static int result = 0;
-	result = credit(1, vals->accountNum1, vals->amount);
+	result = credit(1, vals->accountNum, vals->amount);
+	
 	printf("Credit Result:%i\n",result);
 	return &result;
 }
 
 int *b1_debit_2(struct bank1AccountInfo *vals, CLIENT *cl){
 	static int result = 0;
-	if(vals->accountNum2 == NULL){
-		result = debit(1, vals->accountNum1, vals->amount);
-	}else{
-		result = debit(1, vals->accountNum2, vals->amount);
-	}
+	result = debit(1, vals->accountNum, vals->amount);
+	
 	printf("Debit Result:%i\n",result);
 	return &result;
 }

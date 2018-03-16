@@ -5,13 +5,21 @@
 #include "bank2.h"
 #include "virtualbank.h"
 
+int setup = 0;
 
 void intializeDatabases(){
 	setupDB(1);
 	setupDB(2);
 	setupDB(3);
+	setup = 1;
 }
 
+int *cantFind(int codeNumber){
+	static int nothing = 0;
+	nothing = codeNumber;
+
+	return &nothing;
+}
 
 int *vb_credit_1(accountInfo *vals, CLIENT *cl){
 	int result = 0;
@@ -19,15 +27,13 @@ int *vb_credit_1(accountInfo *vals, CLIENT *cl){
 	struct bank1AccountInfo b1_info;
 	struct bank2AccountInfo b2_info;
 
-	b1_info.accountNum1 = vals->accountNum1;
-	b1_info.accountNum2 = vals->accountNum2;
+	b1_info.accountNum = vals->accountNum1;
 	b1_info.amount = vals->amount;
 
-	b2_info.accountNum1 = vals->accountNum1;
-	b2_info.accountNum2 = vals->accountNum2;
+	b2_info.accountNum = vals->accountNum1;
 	b2_info.amount = vals->amount;
 
-	intializeDatabases();
+	if(setup == 0){intializeDatabases();}
 
 	result = accountLookUP(vals->accountNum1);
 
@@ -39,7 +45,7 @@ int *vb_credit_1(accountInfo *vals, CLIENT *cl){
 			clnt_pcreateerror("127.0.0.1");
 			exit(1);
 		}
-		printf("Account: %s located at Bank 1\n", b1_info.accountNum1);
+		printf("Account: %s located at Bank 1\n", b1_info.accountNum);
 		transactionResult = b1_credit_2(&b1_info, cl);
 	}else if(result == 2){
 		cl = clnt_create("127.0.0.1", BANK2, VER3, "tcp");
@@ -51,8 +57,10 @@ int *vb_credit_1(accountInfo *vals, CLIENT *cl){
 		transactionResult = b2_credit_3(&b2_info, cl);
 	}else{
 		printf("Unable to locate account: %s\n", vals->accountNum1);
+		transactionResult = cantFind(3);
 	}
 
+	//printf("The result: %i\n", *transactionResult);
 	return transactionResult;
 }
 
@@ -63,15 +71,13 @@ int *vb_debit_1(accountInfo *vals, CLIENT *cl){
 	struct bank1AccountInfo b1_info;
 	struct bank2AccountInfo b2_info;
 
-	b1_info.accountNum1 = vals->accountNum1;
-	b1_info.accountNum2 = vals->accountNum2;
+	b1_info.accountNum = vals->accountNum1;
 	b1_info.amount = vals->amount;
 
-	b2_info.accountNum1 = vals->accountNum1;
-	b2_info.accountNum2 = vals->accountNum2;
+	b2_info.accountNum = vals->accountNum1;
 	b2_info.amount = vals->amount;
 
-	intializeDatabases();
+	if(setup == 0){intializeDatabases();}
 
 	result = accountLookUP(vals->accountNum1);
 
@@ -93,8 +99,9 @@ int *vb_debit_1(accountInfo *vals, CLIENT *cl){
 		transactionResult = b2_debit_3(&b2_info, cl);
 	}else{
 		printf("Unable to locate account: %s\n", vals->accountNum1);
+		transactionResult = cantFind(3);
 	}
-	printf("The result: %i\n", &transactionResult);
+	//printf("The result: %i\n", *transactionResult);
 	return transactionResult;
 }
 
@@ -102,20 +109,18 @@ int *vb_debit_1(accountInfo *vals, CLIENT *cl){
 int *vb_transfer_1(accountInfo *vals, CLIENT *cl){
 	int acc1_location = 0;
 	int acc2_location = 0;
-	intializeDatabases();
 	int* transactionResult = 0;
+
+	if(setup == 0){intializeDatabases();}
+	
 
 	struct bank1AccountInfo b1_info;
 	struct bank2AccountInfo b2_info;
-
-	b1_info.accountNum1 = vals->accountNum1;
-	b1_info.accountNum2 = vals->accountNum2;
+	
 	b1_info.amount = vals->amount;
-
-	b2_info.accountNum1 = vals->accountNum1;
-	b2_info.accountNum2 = vals->accountNum2;
 	b2_info.amount = vals->amount;
 
+	
 	acc1_location = accountLookUP(vals->accountNum1);
 	acc2_location = accountLookUP(vals->accountNum2);
 
@@ -127,10 +132,12 @@ int *vb_transfer_1(accountInfo *vals, CLIENT *cl){
 				exit(1);
 			}
 			printf("Account1: %s located at Bank 1\n", vals->accountNum1);
+			b1_info.accountNum = vals->accountNum1;
 			transactionResult = b1_debit_2(&b1_info, cl);
-			if(transactionResult != 0){
+			if(*transactionResult == 1){
 				if(acc2_location == 1){
 						printf("Account1: %s located at Bank 1\n", vals->accountNum2);
+						b1_info.accountNum = vals->accountNum2;
 						transactionResult = b1_credit_2(&b1_info, cl);
 				}else{
 					cl = clnt_create("127.0.0.1", BANK2, VER3, "tcp");
@@ -139,6 +146,7 @@ int *vb_transfer_1(accountInfo *vals, CLIENT *cl){
 						exit(1);
 					}
 					printf("Account2: %s located at Bank 1\n", vals->accountNum2);
+					b2_info.accountNum = vals->accountNum2;
 					transactionResult = b2_credit_3(&b2_info, cl);
 				}
 			}
@@ -149,10 +157,12 @@ int *vb_transfer_1(accountInfo *vals, CLIENT *cl){
 				exit(1);
 			}
 			printf("Account1: %s located at Bank 2\n", vals->accountNum1);
+			b2_info.accountNum = vals->accountNum1;
 			transactionResult = b2_debit_3(&b2_info, cl);
-			if(transactionResult != 0){
+			if(*transactionResult == 1){
 				if(acc2_location == 2){
 						printf("Account2: %s located at Bank 2\n", vals->accountNum2);
+						b2_info.accountNum = vals->accountNum2;
 						transactionResult = b2_credit_3(&b2_info, cl);
 				}else{
 					cl = clnt_create("127.0.0.1", BANK1, VER2, "tcp");
@@ -161,18 +171,27 @@ int *vb_transfer_1(accountInfo *vals, CLIENT *cl){
 						exit(1);
 					}
 					printf("Account2: %s located at Bank 1\n", vals->accountNum2);
+					b1_info.accountNum = vals->accountNum2;
 					transactionResult = b1_credit_2(&b1_info, cl);
 				}
 		}
 	}
 	}else{
-			printf("Unable to locate account: %s\n", vals->accountNum1);
-			if((acc2_location != 1 && acc2_location != 2)){
+			if((acc1_location != 1 && acc1_location != 2) && (acc2_location == 1 || acc2_location == 2)){
+				printf("Unable to locate account: %s\n", vals->accountNum1);
+				transactionResult = cantFind(3);
+			}else if((acc1_location == 1 || acc1_location == 2) && (acc2_location != 1 && acc2_location != 2)){
 				printf("Unable to locate account: %s\n", vals->accountNum2);
+				transactionResult = cantFind(4);
+			}else{
+				printf("Unable to locate account: %s and account:%s\n", vals->accountNum1, vals->accountNum2);
+				transactionResult = cantFind(5);
 			}
 	}
 
+	//printf("The result: %i\n", *transactionResult);
 	return transactionResult;
+	
 }
 
 int *vb_credit_1_svc(struct accountInfo *vals,

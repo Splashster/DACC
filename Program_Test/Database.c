@@ -22,11 +22,11 @@ int created_db3 = 0;
 static int lookUpQueryCallback(void *Used, int argc, char **argv, char **azColName) {
    db_data *theData = (db_data *)Used;
    theData->bank_location = atoi(argv[0]);
-   int i;
-   printf("I got nothing\n");
-   for(i = 0; i<argc; i++) {
-      printf("I'm here %s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
-  }
+   //int i;
+   //printf("I got nothing\n");
+   //for(i = 0; i<argc; i++) {
+   //   printf("I'm here %s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+ // }
    return 0;
 }
 
@@ -38,20 +38,27 @@ static int fundsQueryCallback(void *Used, int argc, char **argv, char **azColNam
 	db_data *theData = (db_data *)Used;
    	int i;
 
-   for(i = 0; i<argc; i++) {
-      //printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+   //for(i = 0; i<argc; i++) {
+    //  printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
       //if(azColName[0] == "ID"){
-      	theData->id = atoi(argv[0]);
+    //theData->id = atoi(argv[0]);
      // }
       //if(azColName[1] == "CURRENT_BALANCE"){
-      	 theData->remaining_balance = atoi(argv[4]);
-      	 //printf("Current bal: %i\n", theData->remaining_balance);
-      //}
+    theData->remaining_balance = atoi(argv[0]);
+    printf("Current bal: %i\n", theData->remaining_balance);
+   //  }
       //printf("Current col:%s i: %i\n", azColName[i], i);
 
-   }
+   //}
 
 
+   	return 0;
+}
+
+static int idQueryCallback(void *Used, int argc, char **argv, char **azColName){
+	db_data *theData = (db_data *)Used;
+    theData->id = atoi(argv[0]);
+ 
    	return 0;
 }
 
@@ -93,7 +100,7 @@ int lookUpQuery(sqlite3 *db, char* sql, db_data theData){
 
 }
 
-db_data fundsQuery(sqlite3 *db, char* sql, db_data theData){
+int fundsQuery(sqlite3 *db, char* sql, db_data theData){
 	int result;
 	char *zErrMsg = 0;
 
@@ -108,7 +115,17 @@ db_data fundsQuery(sqlite3 *db, char* sql, db_data theData){
    	/}*/
     //printf("Balance: %i\n", theData.remaining_balance);
     //printf("ID: %i\n", theData.id);
-	return theData;
+	return theData.remaining_balance;
+
+}
+
+int idQuery(sqlite3 *db, char* sql, db_data theData){
+	int result;
+	char *zErrMsg = 0;
+
+	result = sqlite3_exec(db, sql, idQueryCallback, &theData, &zErrMsg);
+
+	return theData.id;
 
 }
 
@@ -271,11 +288,18 @@ int credit(int bank, char*accountNum, int amount){
 	theData.remaining_balance = 0;
 	theData.bank_location = 0;
 	theData.id = 0;
+	int transactionProcessed = 1;
 
 	db = openDBConnection(bank, db);
-	sprintf(sql, "SELECT * FROM TRANSACTIONS WHERE ACCOUNT_NUMBER = '%s' ORDER BY ID DESC LIMIT 1", accountNum);
+
+	sprintf(sql, "SELECT ID FROM TRANSACTIONS ORDER BY ID DESC LIMIT 1");
 	//printf("SQL: %s\n", sql);
-	theData = fundsQuery(db,sql, theData);
+	theData.id = idQuery(db,sql, theData);
+
+
+	sprintf(sql, "SELECT CURRENT_BALANCE FROM TRANSACTIONS WHERE ACCOUNT_NUMBER = '%s' ORDER BY ID DESC LIMIT 1", accountNum);
+	//printf("SQL: %s\n", sql);
+	theData.remaining_balance = fundsQuery(db,sql, theData);
 	printf("Current Balance for Account: %s is: %i\n", accountNum, theData.remaining_balance);
 
 	theData.remaining_balance += amount;
@@ -284,12 +308,12 @@ int credit(int bank, char*accountNum, int amount){
 	sprintf(sql, "INSERT INTO TRANSACTIONS (ID, ACCOUNT_NUMBER, TRANSACTION_TYPE, TRANSACTION_AMOUNT, CURRENT_BALANCE) VALUES (%i, '%s', 'credit', %i, %i)", theData.id , accountNum, amount, theData.remaining_balance);
 	addQuery(db, sql);
 
-	sprintf(sql, "SELECT * FROM TRANSACTIONS WHERE ACCOUNT_NUMBER = '%s' ORDER BY ID DESC LIMIT 1", accountNum);
-	theData = fundsQuery(db,sql,theData);
+	sprintf(sql, "SELECT CURRENT_BALANCE FROM TRANSACTIONS WHERE ACCOUNT_NUMBER = '%s' ORDER BY ID DESC LIMIT 1", accountNum);
+	theData.remaining_balance = fundsQuery(db,sql,theData);
 	printf("New Balance for Account: %s is: %i\n", accountNum, theData.remaining_balance);
 
 	closeDB(db);
-	return 1;
+	return transactionProcessed;
 }
 
 int debit(int bank, char* accountNum, int amount){
@@ -297,12 +321,20 @@ int debit(int bank, char* accountNum, int amount){
 	sqlite3* db;
 	char sql[300];
 	db_data theData;
+	theData.id = 0;
+	theData.remaining_balance = 2;
 
 
 	db = openDBConnection(bank, db);
-	sprintf(sql, "SELECT * FROM TRANSACTIONS WHERE ACCOUNT_NUMBER = '%s' ORDER BY ID DESC LIMIT 1", accountNum);
+
+	sprintf(sql, "SELECT ID FROM TRANSACTIONS ORDER BY ID DESC LIMIT 1");
 	//printf("SQL: %s\n", sql);
-	theData = fundsQuery(db,sql, theData);
+	theData.id = idQuery(db,sql, theData);
+
+	sprintf(sql, "SELECT CURRENT_BALANCE FROM TRANSACTIONS WHERE ACCOUNT_NUMBER = '%s' ORDER BY ID DESC LIMIT 1", accountNum);
+	//printf("SQL: %s\n", sql);
+	theData.remaining_balance = fundsQuery(db,sql, theData);
+
 	printf("Current Balance for Account: %s is: %i\n", accountNum, theData.remaining_balance);
 
 	if((theData.remaining_balance - amount) >= 0){
@@ -310,8 +342,8 @@ int debit(int bank, char* accountNum, int amount){
 		theData.id += 1;
 		sprintf(sql, "INSERT INTO TRANSACTIONS (ID, ACCOUNT_NUMBER, TRANSACTION_TYPE, TRANSACTION_AMOUNT, CURRENT_BALANCE) VALUES (%i, '%s', 'credit', %i, %i)", theData.id , accountNum, amount, theData.remaining_balance);
 		addQuery(db, sql);
-		sprintf(sql, "SELECT * FROM TRANSACTIONS WHERE ACCOUNT_NUMBER = '%s' ORDER BY ID DESC LIMIT 1", accountNum);
-		theData = fundsQuery(db,sql,theData);
+		sprintf(sql, "SELECT CURRENT_BALANCE FROM TRANSACTIONS WHERE ACCOUNT_NUMBER = '%s' ORDER BY ID DESC LIMIT 1", accountNum);
+		theData.remaining_balance = fundsQuery(db,sql,theData);
 		printf("New Balance for Account: %s is: %i\n",accountNum, theData.remaining_balance);
 		transactionProcessed = 1;
 

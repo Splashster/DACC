@@ -1,6 +1,5 @@
 struct bank2AccountInfo{
-		string accountNum1<50>;
-		string accountNum2<50>;
+		string accountNum<50>;
 		int amount;
 };
 
