@@ -1,3 +1,11 @@
+/*************************************************************************
+The database.c file is the power horse of the Virtual Banking Program.
+This file setups and intializes the VirtualBank, Bank1, and Bank2 databases.
+This file handles all user queries.
+This file performs all user transactions and returns whether or not those
+transactions were succesfully processed or not.
+**************************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,6 +27,7 @@ int created_db1 = 0;
 int created_db2 = 0;
 int created_db3 = 0;
 
+//Stores which bank the account number is located in, if found.
 static int lookUpQueryCallback(void *Used, int argc, char **argv, char **azColName) {
    db_data *theData = (db_data *)Used;
    theData->bank_location = atoi(argv[0]);
@@ -30,6 +39,7 @@ static int addQueryCallback(void *NotUsed, int argc, char **argv, char **azColNa
    return 0;
 }
 
+//Stores the current balance of the account.
 static int fundsQueryCallback(void *Used, int argc, char **argv, char **azColName){
 	db_data *theData = (db_data *)Used;
     theData->remaining_balance = atoi(argv[0]);
@@ -37,6 +47,7 @@ static int fundsQueryCallback(void *Used, int argc, char **argv, char **azColNam
    	return 0;
 }
 
+//Stores the last id in the current table
 static int idQueryCallback(void *Used, int argc, char **argv, char **azColName){
 	db_data *theData = (db_data *)Used;
     theData->id = atoi(argv[0]);
@@ -45,6 +56,7 @@ static int idQueryCallback(void *Used, int argc, char **argv, char **azColName){
 }
 
 
+//Inserts items into the database
 int addQuery(sqlite3 *db, char* sql){
 	int result;
 	char *zErrMsg = 0;
@@ -52,7 +64,7 @@ int addQuery(sqlite3 *db, char* sql){
 	result = sqlite3_exec(db, sql, addQueryCallback, 0, &zErrMsg);
 
 	if(result != SQLITE_OK){
-		fprintf(stderr, "SQL error: %s\n", zErrMsg);
+		//fprintf(stderr, "SQL error: %s\n", zErrMsg);
       	sqlite3_free(zErrMsg);
 
    	} 
@@ -60,6 +72,7 @@ int addQuery(sqlite3 *db, char* sql){
    	return result;
 }
 
+//Looks for the location of the account number
 int lookUpQuery(sqlite3 *db, char* sql, db_data theData){
 	int result;
 	char *zErrMsg = 0;
@@ -69,6 +82,7 @@ int lookUpQuery(sqlite3 *db, char* sql, db_data theData){
    	return theData.bank_location;
 }
 
+//Looks for the account's current balance
 int fundsQuery(sqlite3 *db, char* sql, db_data theData){
 	int result;
 	char *zErrMsg = 0;
@@ -78,6 +92,7 @@ int fundsQuery(sqlite3 *db, char* sql, db_data theData){
 	return theData.remaining_balance;
 }
 
+//Looks for the last id of the current table
 int idQuery(sqlite3 *db, char* sql, db_data theData){
 	int result;
 	char *zErrMsg = 0;
@@ -87,6 +102,9 @@ int idQuery(sqlite3 *db, char* sql, db_data theData){
 	return theData.id;
 }
 
+//Creates tables for the banks
+//Initializes the bank databases by using specific text files 
+//that contain data about the banks
 void initializeDB(sqlite3 *db, char* filename, char* bank){
 	char sql[300];
 	int result;
@@ -143,6 +161,7 @@ void initializeDB(sqlite3 *db, char* filename, char* bank){
 	}
 }
 
+//Opens a connection with each database
 sqlite3* openDBConnection(int bank, sqlite3* db){
 
 	int result = 0;
@@ -151,25 +170,26 @@ sqlite3* openDBConnection(int bank, sqlite3* db){
 			result = sqlite3_open("bank1.db", &db);
 
 			if(result){
-					fprintf(stderr, "There was a problem with the bank1 db: %s\n", sqlite3_errmsg(db));
+					//fprintf(stderr, "There was a problem with the bank1 db: %s\n", sqlite3_errmsg(db));
 			}
 	}else if(bank == 2){
 			result = sqlite3_open("bank2.db", &db);
 
 			if(result){
-				fprintf(stderr, "There was a problem with the bank2 db: %s\n", sqlite3_errmsg(db));
+				//fprintf(stderr, "There was a problem with the bank2 db: %s\n", sqlite3_errmsg(db));
 			}
 	}else{
 		result = sqlite3_open("virtualbank.db", &db);
 
 		if(result){
-			fprintf(stderr, "There was a problem with the bank2 db: %s\n", sqlite3_errmsg(db));
+			//fprintf(stderr, "There was a problem with the bank2 db: %s\n", sqlite3_errmsg(db));
 		}
 	}
 
 	return db;
 }
 
+//Calls functions to open the databases and initialize them
 void setupDB(int bank){
 	sqlite3* db;
 
@@ -190,6 +210,8 @@ void setupDB(int bank){
 	closeDB(db);
 }
 
+//Looks up the location of the account number
+//Returns location if found and if not it returns 0
 int accountLookUP(char* accountNum){
 	char sql[300];
 	db_data theData;
@@ -205,6 +227,8 @@ int accountLookUP(char* accountNum){
 	return theData.bank_location;
 }
 
+//Performs the credit transaction
+//Returns a succesful transaction indicator once complete
 int credit(int bank, char*accountNum, int amount){
 	sqlite3* db;
 	char sql[300];
@@ -238,8 +262,10 @@ int credit(int bank, char*accountNum, int amount){
 	return transactionProcessed;
 }
 
+//Performs the debit transaction
+//Returns a 1 if transaction successful otherwise returns 2
 int debit(int bank, char* accountNum, int amount){
-	int transactionProcessed = 0;
+	int transactionProcessed = 2;
 	sqlite3* db;
 	char sql[300];
 	db_data theData;
@@ -255,7 +281,6 @@ int debit(int bank, char* accountNum, int amount){
 	sprintf(sql, "SELECT CURRENT_BALANCE FROM TRANSACTIONS WHERE ACCOUNT_NUMBER = '%s' ORDER BY ID DESC LIMIT 1", accountNum);
 	theData.remaining_balance = fundsQuery(db,sql, theData);
 	printf("Current Balance for Account: %s is: %i\n", accountNum, theData.remaining_balance);
-
 	if((theData.remaining_balance - amount) >= 0){
 		theData.remaining_balance -= amount;
 		theData.id += 1;
@@ -269,6 +294,7 @@ int debit(int bank, char* accountNum, int amount){
 	}
 
 	closeDB(db);
+	
 
 	return transactionProcessed;
 }

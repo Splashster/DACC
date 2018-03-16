@@ -26,8 +26,8 @@ int main(int argc, char* argv[]){
 
 	while(1){
 		
-		printf("Ready> ");
 		getline(&input, &len, stdin);
+		printf("Ready> %s", input);
 
 		if(strcasecmp(input,"quit\n") == 0){
 			printf("Goodbye\n");

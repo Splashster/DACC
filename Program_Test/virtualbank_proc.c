@@ -1,12 +1,18 @@
+/*************************************************************************
+The virtualbank_proc.c file acts and a middleware server and passes the users'
+request to the approriate bank rpc servers.
+**************************************************************************/
+
 #include <stdio.h>
 #include <sqlite3.h>
-#include "Database.h"
+#include "database.h"
 #include "bank1.h"
 #include "bank2.h"
 #include "virtualbank.h"
 
 int setup = 0;
 
+//Setup up the databases
 void intializeDatabases(){
 	setupDB(1);
 	setupDB(2);
@@ -14,6 +20,7 @@ void intializeDatabases(){
 	setup = 1;
 }
 
+//Stores and returns an error code
 int *cantFind(int codeNumber){
 	static int nothing = 0;
 	nothing = codeNumber;
@@ -21,6 +28,11 @@ int *cantFind(int codeNumber){
 	return &nothing;
 }
 
+//Looks up which bank the account is in and
+//calls the credit function for the bank the account
+//was located in.
+//If transaction succesful 1 is returned.
+//If account number was not found a 3 is returned.
 int *vb_credit_1(accountInfo *vals, CLIENT *cl){
 	int result = 0;
 	int* transactionResult = 0;
@@ -58,6 +70,13 @@ int *vb_credit_1(accountInfo *vals, CLIENT *cl){
 	return transactionResult;
 }
 
+//Looks up which bank the account is in and
+//calls the debit function for the bank the account
+//was located in.
+//If transaction succesful 1 is returned.
+//If transaction failed due to insufficient funds a 2
+//is returned 
+//If account number was not found a 3 is returned
 int *vb_debit_1(accountInfo *vals, CLIENT *cl){
 	int result = 0;
 	int* transactionResult = 0;
@@ -95,7 +114,15 @@ int *vb_debit_1(accountInfo *vals, CLIENT *cl){
 	return transactionResult;
 }
 
-
+//Looks up which bank the accounts are in and
+//calls the debit and credit function for the bank(s) 
+//the accounts were located in.
+//If transaction succesful 1 is returned.
+//If transaction failed due to insufficient funds a 2
+//is returned 
+//If account number1 was not found a 3 is returned
+//If account number2 was not found a 4 is returned
+//If neither account number1 nor 2 are found a 5 is returned
 int *vb_transfer_1(accountInfo *vals, CLIENT *cl){
 	int acc1_location = 0;
 	int acc2_location = 0;

@@ -1,8 +1,13 @@
+/*************************************************************************
+The bank2_proc.c file is the handles the transactions for accounts
+located in the bank2 database.
+**************************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <rpc/rpc.h>
-#include "Database.h"
+#include "database.h"
 #include "bank2.h"
 
 int *b2_credit_3(struct bank2AccountInfo *vals, CLIENT *cl){

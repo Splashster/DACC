@@ -2,6 +2,7 @@
 CC=gcc
 CFLAGS= -g
 LDFLAGS=-g -l sqlite3
+SHELL=/bin/bash
 
 PROG_CLIENT=client
 PROG_SERVER=virtualbank_svc
@@ -72,8 +73,12 @@ run_bank2:
 	./$(PROG_BANK2)
 
 .PHONY: run_client
-run_client:
-	./$(PROG_CLIENT)
+run_client: 
+	@echo -e "credit A12345 100\n\
+	credit B12345 10000\n\
+	transfer A12345 B12345 25000\n\
+	transfer B12345 A12345 10\n\
+	quit" | ./$(PROG_CLIENT)
 	
 	
 	

@@ -1,8 +1,13 @@
+/*************************************************************************
+The bank1_proc.c file is the handles the transactions for accounts
+located in the bank1 database.
+**************************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <rpc/rpc.h>
-#include "Database.h"
+#include "database.h"
 #include "bank1.h"
 
 int *b1_credit_2(struct bank1AccountInfo *vals, CLIENT *cl){
@@ -15,7 +20,7 @@ int *b1_credit_2(struct bank1AccountInfo *vals, CLIENT *cl){
 int *b1_debit_2(struct bank1AccountInfo *vals, CLIENT *cl){
 	static int result = 0;
 	result = debit(1, vals->accountNum, vals->amount);
-	
+
 	return &result;
 }
 
