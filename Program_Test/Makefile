@@ -61,3 +61,20 @@ depend: virtualbank.h
 	$(CXX) -M $(CFLAGS) -M $(PROG_CLIENT).c $(PROG_CLIENT).c > make.depend
 
 -include make.depend
+
+.PHONY: run_services
+run_services: run_server run_bank1 run_bank2 
+run_server: 
+	./$(PROG_SERVER)
+run_bank1:
+	./$(PROG_BANK1)
+run_bank2:
+	./$(PROG_BANK2)
+
+.PHONY: run_client
+run_client:
+	./$(PROG_CLIENT)
+	
+	
+	
+

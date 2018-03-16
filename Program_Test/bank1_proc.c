@@ -9,7 +9,6 @@ int *b1_credit_2(struct bank1AccountInfo *vals, CLIENT *cl){
 	static int result = 0;
 	result = credit(1, vals->accountNum, vals->amount);
 	
-	printf("Credit Result:%i\n",result);
 	return &result;
 }
 
@@ -17,7 +16,6 @@ int *b1_debit_2(struct bank1AccountInfo *vals, CLIENT *cl){
 	static int result = 0;
 	result = debit(1, vals->accountNum, vals->amount);
 	
-	printf("Debit Result:%i\n",result);
 	return &result;
 }
 

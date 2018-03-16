@@ -7,9 +7,8 @@
 int main(int argc, char* argv[]){
 	CLIENT *remote_client;
 	char* input = NULL;
+	int count;
 	char* transactionType;
-	int amount = 0;
-	int count = 0;
 	size_t len = 0;
 	int* result = 0;
 	FILE *file;
@@ -26,6 +25,7 @@ int main(int argc, char* argv[]){
 
 		printf("Ready> ");
 		getline(&input, &len, stdin);
+		count = 0;
 
 		if(strcasecmp(input,"quit\n") == 0){
 			printf("Goodbye\n");
@@ -40,6 +40,10 @@ int main(int argc, char* argv[]){
 								vals.accountNum1 = strtok(NULL, " ");
 								vals.accountNum2 = "";
 								vals.amount = atoi(strtok(NULL, " "));
+
+								printf("Vals:%i\n", vals.amount);
+								
+								
 								result = vb_credit_1(&vals, remote_client);
 								if (result == NULL) {
 									clnt_perror(remote_client, "127.0.0.1");
@@ -56,6 +60,7 @@ int main(int argc, char* argv[]){
 								vals.accountNum1 = strtok(NULL, " ");
 								vals.accountNum2 = "";
 								vals.amount = atoi(strtok(NULL, " "));
+
 								result = vb_debit_1(&vals,remote_client);
 								if (result == NULL) {
 									clnt_perror(remote_client, "127.0.0.1");
@@ -70,9 +75,11 @@ int main(int argc, char* argv[]){
 								}
 
 							}else{
+
 								vals.accountNum1 = strtok(NULL, " ");
 								vals.accountNum2 = strtok(NULL, " ");
 								vals.amount = atoi(strtok(NULL, " "));
+								
 								result = vb_transfer_1(&vals, remote_client);
 								if (result == NULL) {
 									clnt_perror(remote_client, "127.0.0.1");
@@ -93,7 +100,7 @@ int main(int argc, char* argv[]){
 
 					     }
 			}else if(input[0] != ' '){
-					printf("Please enter perform a transaction or type quit to exit");
+					printf("Please perform a transaction or type quit to exit");
 			}
 		}
 	}
