@@ -3,14 +3,9 @@ Command to build all files
 /------------------------------------/
 make
 
-Command to start RPC Services
+Command to start RPC Services, InitializeDB, Invoke Client, Print Bank1 and Bank2 contents, and kill RPC services
 /------------------------------------/
-make run_services -j3
-
-Command to start client
-/------------------------------------/
-make run_client (in order to run client and have data entered in automatically)
-./client (in order run client and enter data manually)
+make test
 
 Command to delete files created by make
 /------------------------------------/
@@ -32,10 +27,7 @@ Quit
 
 Instructions
 /-----------------------------------------/
-1. Open two terminals
-2. Run make in the first terminal
-3. Start the RPC services in the first terminal
-4. Start client in the second terminal
+1. Run command to start everything (make test)
 
 
 
@@ -46,7 +38,7 @@ Notes
     -AccountMapping.txt (ID, Account Number, Bank Number)
     -Bank1.txt (ID, TransactionType, AccountNumber, Transaction Amount, Current Balance)
     -Bank2.txt (ID, TransactionType, AccountNumber, Transaction Amount, Current Balance)
--In order add new accounts do the following
+-In order to add new accounts do the following
     -Add a new entry in the AccountMapping.txt file
         -Make sure the ID is incremented and doesn't match an ID already in the file
         -Also, make sure that each item in the entry is delimited by a space
@@ -60,4 +52,3 @@ Notes
         -It will not try to update both banks
     -QUIT COMMAND WILL ALWAYS BE PROVIDED WHEN PASSING COMMANDS THROUGH MAKEFILE
         -If quit command is not provided then the program segfaults once the entered transactions are completed
-
