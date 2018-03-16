@@ -51,7 +51,7 @@ static int fundsQueryCallback(void *Used, int argc, char **argv, char **azColNam
 static int idQueryCallback(void *Used, int argc, char **argv, char **azColName){
 	db_data *theData = (db_data *)Used;
     theData->id = atoi(argv[0]);
- 
+
    	return 0;
 }
 
@@ -67,7 +67,7 @@ int addQuery(sqlite3 *db, char* sql){
 		//fprintf(stderr, "SQL error: %s\n", zErrMsg);
       	sqlite3_free(zErrMsg);
 
-   	} 
+   	}
 
    	return result;
 }
@@ -103,7 +103,7 @@ int idQuery(sqlite3 *db, char* sql, db_data theData){
 }
 
 //Creates tables for the banks
-//Initializes the bank databases by using specific text files 
+//Initializes the bank databases by using specific text files
 //that contain data about the banks
 void initializeDB(sqlite3 *db, char* filename, char* bank){
 	char sql[300];
@@ -251,7 +251,7 @@ int credit(int bank, char*accountNum, int amount){
 	theData.remaining_balance += amount;
 	theData.id += 1;
 
-	sprintf(sql, "INSERT INTO TRANSACTIONS (ID, ACCOUNT_NUMBER, TRANSACTION_TYPE, TRANSACTION_AMOUNT, CURRENT_BALANCE) VALUES (%i, '%s', 'credit', %i, %i)", theData.id , accountNum, amount, theData.remaining_balance);
+	sprintf(sql, "INSERT INTO TRANSACTIONS (ID, ACCOUNT_NUMBER, TRANSACTION_TYPE, TRANSACTION_AMOUNT, CURRENT_BALANCE) VALUES (%i, '%s', 'Credit', %i, %i)", theData.id , accountNum, amount, theData.remaining_balance);
 	addQuery(db, sql);
 
 	sprintf(sql, "SELECT CURRENT_BALANCE FROM TRANSACTIONS WHERE ACCOUNT_NUMBER = '%s' ORDER BY ID DESC LIMIT 1", accountNum);
@@ -284,7 +284,7 @@ int debit(int bank, char* accountNum, int amount){
 	if((theData.remaining_balance - amount) >= 0){
 		theData.remaining_balance -= amount;
 		theData.id += 1;
-		sprintf(sql, "INSERT INTO TRANSACTIONS (ID, ACCOUNT_NUMBER, TRANSACTION_TYPE, TRANSACTION_AMOUNT, CURRENT_BALANCE) VALUES (%i, '%s', 'credit', %i, %i)", theData.id , accountNum, amount, theData.remaining_balance);
+		sprintf(sql, "INSERT INTO TRANSACTIONS (ID, ACCOUNT_NUMBER, TRANSACTION_TYPE, TRANSACTION_AMOUNT, CURRENT_BALANCE) VALUES (%i, '%s', 'Debit', %i, %i)", theData.id , accountNum, amount, theData.remaining_balance);
 		addQuery(db, sql);
 		sprintf(sql, "SELECT CURRENT_BALANCE FROM TRANSACTIONS WHERE ACCOUNT_NUMBER = '%s' ORDER BY ID DESC LIMIT 1", accountNum);
 		theData.remaining_balance = fundsQuery(db,sql,theData);
@@ -294,7 +294,7 @@ int debit(int bank, char* accountNum, int amount){
 	}
 
 	closeDB(db);
-	
+
 
 	return transactionProcessed;
 }

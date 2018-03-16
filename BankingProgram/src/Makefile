@@ -61,25 +61,30 @@ depend: virtualbank.h
 
 -include make.depend
 
-.PHONY: run_services
-run_services: run_server run_bank1 run_bank2
-run_server: 
-	./$(PROG_SERVER)
+.PHONY: test
+test: all run_server run_bank1 run_bank2 run_client print_db1 print_db2 kill_services
+run_server:
+	./$(PROG_SERVER) &
 run_bank1:
-	./$(PROG_BANK1)
+	./$(PROG_BANK1) > /dev/null &
 run_bank2:
-	./$(PROG_BANK2)
-
-.PHONY: run_client
-run_client: 
+	./$(PROG_BANK2) > /dev/null &
+run_client:
+	sleep 1
 	@echo -e "credit A12345 100\n\
 	credit B12345 10000\n\
 	transfer A12345 B12345 25\n\
 	transfer B12345 A12345 10\n\
-	transfer BD12 BA123 400\n\
-	transfer BA123 BD12 250\n\
 	quit" | ./$(PROG_CLIENT)
-	
-	
-	
+print_db1:
+	echo -e "select * from transactions;" | sqlite3 bank1.db
+print_db2:
+	echo -e "select * from transactions;" | sqlite3 bank2.db
 
+kill_services: kill_virt kill_bank1 kill_bank2
+kill_virt:
+	pkill $(PROG_SERVER)
+kill_bank1:
+	pkill $(PROG_BANK1)
+kill_bank2:
+	pkill $(PROG_BANK2)
