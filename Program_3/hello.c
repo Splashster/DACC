@@ -77,7 +77,7 @@ void my_barrier(barrier_t *barrier){
          }
 
        }
-       printf("Processor: %i Flag is: %i sense is: %i\n",barrier->current_processor, barrier->flag, local_sense);
+      // printf("Processor: %i Flag is: %i sense is: %i\n",barrier->current_processor, barrier->flag, local_sense);
  }
 
 
@@ -90,43 +90,33 @@ int main(int argc, char** argv) {
 
     int i;
     FILE *file;
-    char* msg;
+    char msg[2000];
 
     my_barrier_init(&barrier);
 
-    if(barrier.current_processor == 0){
-      file = fopen("tstfile.txt", "w");
-    }else{
-      file = fopen("tstfile.txt", "r");
-    }
-
     for(i=0; i <= 10; i++){
       if(barrier.current_processor == 0){
+        file = fopen("tstfile.txt", "w");
         sleep(1);
         if(file!=NULL){
-          //sprintf(msg, "Greetings the current phase is: %i\n", i);
-        //  fputs(msg, file);
+          sprintf(msg, "Greetings the current phase is: %i\n", i);
+          //printf("%s\n",msg);
+          fputs(msg, file);
           fclose(file);
         }
       }
       my_barrier(&barrier);
       barrier.flag++;
       if(barrier.current_processor != 0){
+        file = fopen("tstfile.txt", "r");
         if(file!=NULL){
-        //  fgets(msg, 200, file);
-        //  printf("%s",msg);
+          fgets(msg, 2000, file);
+          printf("Processor %i reads: %s",barrier.current_processor,msg);
           fclose(file);
         }
       }
     }
 
-
-    // Print off a hello world message
-
-
-    /*printf("Hello world from processor %s, rank %d"
-           " out of %d processors\n",
-           processor_name, world_rank, world_size);*/
 
     // Finalize the MPI environment.
     MPI_Finalize();
