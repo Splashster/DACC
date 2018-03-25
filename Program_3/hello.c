@@ -94,27 +94,29 @@ int main(int argc, char** argv) {
 
     my_barrier_init(&barrier);
 
-    for(i=0; i <= 10; i++){
+    for(i=0; i < 10; i++){
       if(barrier.current_processor == 0){
-        file = fopen("tstfile.txt", "w");
+        file = fopen("tstfile.txt", "a");
         sleep(1);
         if(file!=NULL){
-          sprintf(msg, "Greetings the current phase is: %i\n", i);
+          sprintf(msg, "Greetings from Processor: %i the current phase is: %i\n", barrier.current_processor, i);
           //printf("%s\n",msg);
           fputs(msg, file);
           fclose(file);
         }
       }
       my_barrier(&barrier);
-      barrier.flag++;
-      if(barrier.current_processor != 0){
-        file = fopen("tstfile.txt", "r");
-        if(file!=NULL){
-          fgets(msg, 2000, file);
-          printf("Processor %i reads: %s",barrier.current_processor,msg);
-          fclose(file);
-        }
+      file = fopen("tstfile.txt", "r");
+      if(file!=NULL){
+        while(fgets(msg, 2000, file) != NULL){}
+        printf("Processor %i reads: %s",barrier.current_processor,msg);
+        fclose(file);
       }
+      my_barrier(&barrier);
+      if(barrier.current_processor == 0){
+        printf("\n");
+      }
+
     }
 
 

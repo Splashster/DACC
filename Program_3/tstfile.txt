@@ -1,1 +1,10 @@
-Greetings the current phase is: 10
+Greetings from Processor: 0 the current phase is: 0
+Greetings from Processor: 0 the current phase is: 1
+Greetings from Processor: 0 the current phase is: 2
+Greetings from Processor: 0 the current phase is: 3
+Greetings from Processor: 0 the current phase is: 4
+Greetings from Processor: 0 the current phase is: 5
+Greetings from Processor: 0 the current phase is: 6
+Greetings from Processor: 0 the current phase is: 7
+Greetings from Processor: 0 the current phase is: 8
+Greetings from Processor: 0 the current phase is: 9
