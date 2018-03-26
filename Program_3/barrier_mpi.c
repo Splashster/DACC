@@ -99,7 +99,7 @@ int main(int argc, char** argv) {
         file = fopen("tstfile.txt", "a");
         sleep(1);
         if(file!=NULL){
-          sprintf(msg, "Greetings from Processor: %i the current phase is: %i\n", barrier.current_processor, i);
+          sprintf(msg, "Greetings from Processor: %i the current run is: %i\n", barrier.current_processor, i);
           //printf("%s\n",msg);
           fputs(msg, file);
           fclose(file);
