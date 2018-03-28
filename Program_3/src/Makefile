@@ -7,7 +7,7 @@ PROG=barrier_mpi
 HOSTFILE=hostfile.txt
 EXEC_CMD=mpirun -n 4 --hostfile
 
-all: clean $(PROG)
+all: $(PROG)
 
 $(PROG): $(PROG).o
 

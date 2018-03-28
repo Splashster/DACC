@@ -1,3 +1,12 @@
+/************************************************************************
+The barrier_mpi program writes and reads from a file using the MPI library.
+Processor 0 is the only processor that writes to the file.
+While processor 0 writes to the file, the other processors wait at the barrier
+until all of the processors have reached the barrier.
+Once all of the processors have reached the barrier, the processors then read
+the last contents that were written to the file.
+This is done 10 times.
+*************************************************************************/
 #include <mpi.h>
 #include <stdio.h>
 
@@ -11,6 +20,7 @@ typedef struct barrier_t{
 #define MY_INCREMENT 1
 #define MY_INCREMENT_REPLY 2
 #define MY_RESET 3
+#define FILE_MSG_SIZE 2000
 
 void my_barrier_init(barrier_t *barrier){
   //Set count to 0
@@ -26,6 +36,7 @@ void my_barrier_init(barrier_t *barrier){
   MPI_Comm_rank(MPI_COMM_WORLD, &barrier->current_processor);
 }
 
+//Blocks all processors from continuing until the last processor has reached the barrier
 void my_barrier(barrier_t *barrier){
    int local_sense;
    int my_items[3];
@@ -43,16 +54,13 @@ void my_barrier(barrier_t *barrier){
       barrier->count++;
    }
 
-   //printf("Processor: %i Current msg2: %i\n", barrier->current_processor, msg[0]);
-
    while(barrier->flag != local_sense){
        MPI_Recv(&msg, 3, MPI_INT, MPI_ANY_SOURCE, 0 ,MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-      // printf("Process: %i received from: %i message: %i\n", barrier->current_processor, msg[2], msg[0]);
+
        if(msg[0] == MY_INCREMENT_REPLY){
          arrived = msg[1];
-         //printf("I've arrived: %i\n", arrived);
+
          if(arrived == barrier->processors){
-          // printf("Time to reset\n");
            my_items[0] = MY_RESET;
            my_items[1] = local_sense;
            my_items[2] =  barrier->current_processor;
@@ -65,7 +73,6 @@ void my_barrier(barrier_t *barrier){
            barrier->flag = local_sense;
          }
          }else if(msg[0] == MY_INCREMENT){
-           //printf("Inc me by: %i\n", msg[2]);
            barrier->count += 1;
            my_items[0] = MY_INCREMENT_REPLY;
            my_items[1] = barrier->count;
@@ -77,20 +84,17 @@ void my_barrier(barrier_t *barrier){
          }
 
        }
-      // printf("Processor: %i Flag is: %i sense is: %i\n",barrier->current_processor, barrier->flag, local_sense);
  }
 
 
 
 int main(int argc, char** argv) {
 
-    barrier_t barrier;
-    // Initialize the MPI environment
     MPI_Init(NULL, NULL);
-
     int i;
+    barrier_t barrier;
     FILE *file;
-    char msg[2000];
+    char msg[FILE_MSG_SIZE];
 
     my_barrier_init(&barrier);
 
@@ -100,7 +104,6 @@ int main(int argc, char** argv) {
         sleep(1);
         if(file!=NULL){
           sprintf(msg, "Greetings from Processor: %i the current run is: %i\n", barrier.current_processor, i);
-          //printf("%s\n",msg);
           fputs(msg, file);
           fclose(file);
         }
@@ -119,8 +122,6 @@ int main(int argc, char** argv) {
 
     }
 
-
-    // Finalize the MPI environment.
     MPI_Finalize();
     return 0;
 }
