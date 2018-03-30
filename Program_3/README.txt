@@ -18,4 +18,10 @@ Instructions
 
 Answers for the questions
 /-------------------------------------------/
-1.
+1. Because the barrier implementation used in the assignment is implemented using a distributed memory approach.
+Barrier implementations that use a mutex lock, use it because the program is implemented using a shared memory approach.
+This approach is normally used in multi-threaded programs. Since this program is implemented using a distributed memory approach,
+it does not require a mutex lock because changes made in memory by one processor will not be applied to other processors.
+
+2. The MPI implementation has the ability to handle groups of processors whereas the assignment's implementation assumes
+that every processor will be in the same group. Processors
