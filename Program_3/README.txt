@@ -23,5 +23,11 @@ Barrier implementations that use a mutex lock, use it because the program is imp
 This approach is normally used in multi-threaded programs. Since this program is implemented using a distributed memory approach,
 it does not require a mutex lock because changes made in memory by one processor will not be applied to other processors.
 
-2. The MPI implementation has the ability to handle groups of processors whereas the assignment's implementation assumes
-that every processor will be in the same group. Processors
+2.
+https://6xq.net/barrier-intro/
+less messages being sent
+The MPI implementation of the barrier function is more scalable because it uses a tree structure approach.
+In this approach, every node except the root node has a parent. When a child node reaches the barrier, it sends an arrival message to its parent.
+Once every node has reached the barrier, the root node then sends a departure signal to its children nodes and the children nodes send departure signals
+to their children nodes (if applicable). This approach is more scalable because the root node is less likely
+to become overwhelmed with arrival messages as the nodes reach the barrier.
