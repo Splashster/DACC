@@ -49,13 +49,13 @@ void my_barrier(barrier_t *barrier){
      my_items[0] = MY_INCREMENT;
      my_items[1] = barrier->count;
      my_items[2] = barrier->current_processor;
-     MPI_Send(&my_items, 3, MPI_INT, 0, 0, MPI_COMM_WORLD);
+     MPI_Send(&my_items, 3, MPI_INT, 0, local_sense, MPI_COMM_WORLD);
    }else{
       barrier->count++;
    }
 
    while(barrier->flag != local_sense){
-       MPI_Recv(&msg, 3, MPI_INT, MPI_ANY_SOURCE, 0 ,MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+       MPI_Recv(&msg, 3, MPI_INT, MPI_ANY_SOURCE, local_sense ,MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
        if(msg[0] == MY_INCREMENT_REPLY){
          arrived = msg[1];
@@ -66,7 +66,7 @@ void my_barrier(barrier_t *barrier){
            my_items[2] =  barrier->current_processor;
            for(i = 0; i < barrier->processors; i++){
              if(i != barrier->current_processor){
-               MPI_Send(&my_items, 3, MPI_INT, i, 0, MPI_COMM_WORLD);
+               MPI_Send(&my_items, 3, MPI_INT, i, local_sense, MPI_COMM_WORLD);
              }
            }
            barrier->count = 0;
@@ -77,10 +77,10 @@ void my_barrier(barrier_t *barrier){
            my_items[0] = MY_INCREMENT_REPLY;
            my_items[1] = barrier->count;
            my_items[2] = barrier->current_processor;
-           MPI_Send(&my_items, 3, MPI_INT, msg[2], 0, MPI_COMM_WORLD);
+           MPI_Send(&my_items, 3, MPI_INT, msg[2], local_sense, MPI_COMM_WORLD);
          }else if(msg[0] == MY_RESET){
            barrier->count = 0;
-           barrier->flag = msg[1];
+           barrier->flag = local_sense;
          }
 
        }
