@@ -100,14 +100,13 @@ int main(int argc, char** argv) {
 
     for(i=0; i < 10; i++){
       if(barrier.current_processor == 0){
+        sleep(1);
         file = fopen("tstfile.txt", "a");
         if(file!=NULL){
           sprintf(msg, "Greetings from Processor: %i the current run is: %i\n", barrier.current_processor, i);
           fputs(msg, file);
           fclose(file);
         }
-      }else{
-        sleep(1);
       }
       my_barrier(&barrier);
       file = fopen("tstfile.txt", "r");
