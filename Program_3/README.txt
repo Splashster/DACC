@@ -27,3 +27,8 @@ In this approach, every node except the root node has a parent. When a child nod
 Once every node has reached the barrier, the root node then sends a departure signal to its children nodes, and the children nodes send departure signals
 to their children nodes (if applicable). This approach lessens the amount of communication happening between all of the nodes and the master node.
 It should also speed up the time each node waits inside the barrier.
+
+
+Notes
+/---------------------------------------------/
+The hostfile.txt contains the IP or hostname for all of the nodes being used

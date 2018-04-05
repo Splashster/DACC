@@ -22,6 +22,7 @@ typedef struct barrier_t{
 #define MY_RESET 3
 #define FILE_MSG_SIZE 2000
 
+//Initializes barrier values
 void my_barrier_init(barrier_t *barrier){
   //Set count to 0
   barrier->count = 0;
