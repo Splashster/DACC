@@ -16,7 +16,7 @@ Instructions
 1. Build all of the files
 2. Run the program
 
-Answers for the questions
+Answers To Assignment Questions
 /-------------------------------------------/
 1. Barrier implementations that use a mutex lock, use it because the program is implemented using a shared memory approach.
 This approach is normally used in multi-threaded programs and requires a mutex lock in order to provide thread-safety and ensure that threads do not write over data being used by other threads. The barrier implemented in this program uses a distributed memory approach, which means that each process has its own allocated memory.
