@@ -69,10 +69,9 @@ int adapter_vmstat_to_csv(char[] line, char* convereted){
 		i++;
 	}
 
-	sprintf(convereted, "")
+	sprintf(convereted, "1,%i,%i\n\0", tokArray[0], seconds);
 
 	seconds = time(NULL)/3600;
-
 
 	return length;
 }
