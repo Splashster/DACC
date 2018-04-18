@@ -10,7 +10,6 @@
 #define MESSAGE_SIZE 2048
 
 size_t adapter_csv_to_plot(char*, char*);
-int free_memParser(char[]);
 
 int main()
 {
@@ -50,7 +49,7 @@ int main()
 
 		while(1){
 			zmq_msg_recv(subscriber, &line, 0);
-			length = adapter_vmstat_to_csv(line,convereted);
+			length = adapter_csv_to_plot(line,convereted);
 			deq.push_back(convereted);
 			if(deq.size() > 20){
 				deq.pop_front();
@@ -83,34 +82,24 @@ int main()
 size_t adapter_csv_to_plot(char* line, char* convereted){
 	int length = 0;
 	int free_mem = 0;
-	time_t seconds;
-	
-	free_mem = free_memParser(line);
+	int seconds = 0;
+	time_t t;
+	struct tm *time_info;
+	char* token;
 
-	sprintf(convereted, "1,%i,%i\n\0", free_mem, seconds);
+	token = strtok(line, ",");
+	token = strtok(line, NULL);
+	t = atoi(strtok(line, NULL));
+	
+	time_info = gmtime(&t);
+
+	seconds = time_info->tm_hour*3600+time_info->min*60+time_info->sec;
+
+	sprintf(convereted, "%s %d\n\0", free_mem, seconds);
 
 	length = strlen(convereted);
 
 	seconds = time(NULL)/3600;
 
 	return length;
-}
-
-int free_memParser(char[] line){
-	char* token;
-	char[30] tokArray;
-	int i = 0;
-
-	token = strtok(line, ",");
-	tokArray[i] = token;
-	i++;
-
-	while(token!=NULL){
-		tokArray[i] = token;
-		i++;
-	}
-
-	return itoa(tokArray[0]);
-
-
 }

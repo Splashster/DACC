@@ -88,10 +88,12 @@ int free_memParser(char[] line){
 
 	while(token!=NULL){
 		tokArray[i] = token;
+		printf("Current token: %s at :%i\n", token, i);
 		i++;
 	}
 
-	return itoa(tokArray[0]);
+	return itoa(tokArray[10]);
+
 
 
 }
