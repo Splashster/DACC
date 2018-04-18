@@ -9,7 +9,7 @@
 
 #define MESSAGE_SIZE 2048
 
-size_t adapter_vmstat_to_csv(char [], char*);
+size_t adapter_csv_to_plot(char*, char*);
 int free_memParser(char[]);
 
 int main()
@@ -60,8 +60,12 @@ int main()
 			write(fd[1], input_str, strlen(input_str)+1);
 
 			for(i; i > deq.size(); i++){
-				
+				printf("%s\n", deq.at(i));
+				sprintf(input_str, "%s\n", deq.at(i));
+				write(fd[1], input_str, strlen(input_str)+1);
 			}
+			input_str = "e\n";
+			write(fd[1], input_str, str_len(input_str)+1);
 			fflush(fd[1]);
 		}
 	}else{
@@ -76,7 +80,7 @@ int main()
 
 }
 
-size_t adapter_vmstat_to_csv(char[] line, char* convereted){
+size_t adapter_csv_to_plot(char* line, char* convereted){
 	int length = 0;
 	int free_mem = 0;
 	time_t seconds;
@@ -84,6 +88,8 @@ size_t adapter_vmstat_to_csv(char[] line, char* convereted){
 	free_mem = free_memParser(line);
 
 	sprintf(convereted, "1,%i,%i\n\0", free_mem, seconds);
+
+	length = strlen(convereted);
 
 	seconds = time(NULL)/3600;
 
@@ -95,7 +101,10 @@ int free_memParser(char[] line){
 	char[30] tokArray;
 	int i = 0;
 
-	token = strtok(line, " ");
+	token = strtok(line, ",");
+	tokArray[i] = token;
+	i++;
+
 	while(token!=NULL){
 		tokArray[i] = token;
 		i++;

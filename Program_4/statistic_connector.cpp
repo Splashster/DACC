@@ -70,6 +70,8 @@ size_t adapter_vmstat_to_csv(char[] line, char* convereted){
 
 	sprintf(convereted, "1,%i,%i\n\0", free_mem, seconds);
 
+	length = strlen(convereted);
+
 	seconds = time(NULL)/3600;
 
 	return length;
@@ -81,6 +83,9 @@ int free_memParser(char[] line){
 	int i = 0;
 
 	token = strtok(line, " ");
+	tokArray[i] = token;
+	i++;
+
 	while(token!=NULL){
 		tokArray[i] = token;
 		i++;
