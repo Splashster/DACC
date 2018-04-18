@@ -3,22 +3,27 @@
 #include <unistd.h>
 #include <zmq.h>
 #include <time.h>
+#include <assert.h>
 
 #define MESSAGE_SIZE 1024
 
-int adapter_vmstat_to_csv(char [], char*)
+size_t adapter_vmstat_to_csv(char [], char*);
+int free_memParser(char[]);
 
 int main()
 {
 	int fd[2];
+	int rc;
 	char line[MESSAGE_SIZE];
 	char* converted;
-	int length = 0;
+	size_t length = 0;
 	char* options[] = {"2", "-n", NULL};
 	void *context = zmq_ctx_new();
 	void *publisher = zmq_socket (context, ZMQ_PUB);
-	zmq_bind(publisher, "tcp://localhost:4444");
 	pid_t process;
+
+	rc = zmq_connect(publisher, "tcp://localhost:4444");
+	assert(rc == 0);
 
 	if(pipe(fd) < 0){
 		printf("Problem with pipe\n");
@@ -41,7 +46,7 @@ int main()
 		while(1){
 			read(fd[0],line, 1024);
 			length = adapter_vmstat_to_csv(line, convereted);
-			zmq_send(publisher, &convereted, 0);
+			zmq_send(publisher, &convereted, length, 0);
 
 		}
 	}else{
@@ -56,9 +61,21 @@ int main()
 
 }
 
-int adapter_vmstat_to_csv(char[] line, char* convereted){
+size_t adapter_vmstat_to_csv(char[] line, char* convereted){
 	int length = 0;
+	int free_mem = 0;
 	time_t seconds;
+	
+	free_mem = free_memParser(line);
+
+	sprintf(convereted, "1,%i,%i\n\0", free_mem, seconds);
+
+	seconds = time(NULL)/3600;
+
+	return length;
+}
+
+int free_memParser(char[] line){
 	char* token;
 	char[30] tokArray;
 	int i = 0;
@@ -69,9 +86,7 @@ int adapter_vmstat_to_csv(char[] line, char* convereted){
 		i++;
 	}
 
-	sprintf(convereted, "1,%i,%i\n\0", tokArray[0], seconds);
+	return itoa(tokArray[0]);
 
-	seconds = time(NULL)/3600;
 
-	return length;
 }
