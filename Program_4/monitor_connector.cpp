@@ -1,11 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 #include <string>
 #include <zmq.h>
 #include <time.h>
 #include <assert.h>
-#include <dequeue>
+#include <deque>
 
 #define MESSAGE_SIZE 2048
 
@@ -16,12 +17,14 @@ int main()
 	int fd[2];
 	int rc;
 	int i = 0;
-	std::deque<std::string> deq;
-	char input_str[100];
+	char* input_str;
 	char line[MESSAGE_SIZE];
 	char* converted;
 	size_t length = 0;
-	char* options[] = {"2", "-n", NULL};
+	char *const options[] = {NULL};
+
+	std::deque<std::string> deq;
+
 	void *context = zmq_ctx_new();
 	void *subscriber = zmq_socket (context, ZMQ_SUB);
 	pid_t process;
@@ -41,37 +44,40 @@ int main()
 		exit(1);
 	}
 
+	//Parent
 	if(process > 0){
 		close(fd[0]);
-		input_str = "set term x11";
-		write(fd[1], input_str, strlen(input_str)+1);
-		fflush(fd[1]);
+		FILE *fp = fdopen(fd[1], "w");
+
+		strcpy(input_str, "set term x11");
+		write(fd[1], input_str, strlen(input_str));
+		fflush(fp);
 
 		while(1){
-			zmq_msg_recv(subscriber, &line, 0);
-			length = adapter_csv_to_plot(line,convereted);
-			deq.push_back(convereted);
+			zmq_recv(subscriber, &line,MESSAGE_SIZE , 0);
+			length = adapter_csv_to_plot(line,converted);
+			deq.push_back(converted);
 			if(deq.size() > 20){
 				deq.pop_front();
 			}
 
-			input_str = 'plot "-" with linespoints\n';
-			write(fd[1], input_str, strlen(input_str)+1);
+			strcpy(input_str, "plot '-' with linespoints\n");
+			write(fd[1], input_str, strlen(input_str));
 
-			for(i; i > deq.size(); i++){
-				printf("%s\n", deq.at(i));
-				sprintf(input_str, "%s\n", deq.at(i));
-				write(fd[1], input_str, strlen(input_str)+1);
+			for(i = 0; i < deq.size(); i++){
+				printf("%s\n", deq.at(i).c_str());
+				sprintf(input_str, "%s\n", deq.at(i).c_str());
+				write(fd[1], input_str, strlen(input_str));
 			}
-			input_str = "e\n";
-			write(fd[1], input_str, str_len(input_str)+1);
-			fflush(fd[1]);
+			strcpy(input_str, "e\n");
+			write(fd[1], input_str, strlen(input_str));
+			fflush(fp);
 		}
-	}else{
+	}else{					//Child
 		close(fd[1]);
-		dup2(fd[0],0);
+		dup2(fd[0],STDIN_FILENO);
 		close(fd[0]);
-		execv("gnuplot");
+		execv("gnuplot", options);
 		printf("Execv failed!\n");
 		exit(1);
 
@@ -79,7 +85,7 @@ int main()
 
 }
 
-size_t adapter_csv_to_plot(char* line, char* convereted){
+size_t adapter_csv_to_plot(char* line, char* converted){
 	int length = 0;
 	int free_mem = 0;
 	int seconds = 0;
@@ -93,11 +99,11 @@ size_t adapter_csv_to_plot(char* line, char* convereted){
 	
 	time_info = gmtime(&t);
 
-	seconds = time_info->tm_hour*3600+time_info->min*60+time_info->sec;
+	seconds = time_info->tm_hour*3600+time_info->tm_min*60+time_info->tm_sec;
 
-	sprintf(convereted, "%s %d\n\0", free_mem, seconds);
+	sprintf(converted, "%s %d\n\0", free_mem, seconds);
 
-	length = strlen(convereted);
+	length = strlen(converted);
 
 	seconds = time(NULL)/3600;
 
