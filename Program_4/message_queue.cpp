@@ -8,8 +8,8 @@ int main(void)
 	void *context = zmq_ctx_new();
 	void *backend = zmq_socket (context, ZMQ_XPUB);
 	void *frontend = zmq_socket (context, ZMQ_XSUB);
-	zmq_bind(backend, "tcp://*:4444");
-	zmq_bind(frontend, "tcp://*:5555");
-	zmq_proxy(frontend, backend, NULL);	
+	zmq_bind(backend, "tcp://*:5555");
+	zmq_bind(frontend, "tcp://*:4444");
+	zmq_proxy(frontend, backend, NULL);
 	return 0;
 }

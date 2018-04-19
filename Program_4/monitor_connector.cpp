@@ -6,6 +6,7 @@
 #include <zmq.h>
 #include <time.h>
 #include <deque>
+#include <sstream>
 
 #define MESSAGE_SIZE 2048
 
@@ -16,12 +17,8 @@ int main()
 	int fd[2];
 	int rc;
 	int i = 0;
-	char* input_str;
-	
-	
 	int length = 0;
-	char* options[] = {(char*) 0};
-
+	
 	std::deque<std::string> deq;
 
 	void *context = zmq_ctx_new();
@@ -30,9 +27,11 @@ int main()
 
 	rc = zmq_connect(subscriber, "tcp://localhost:5555");
 	if(rc == -1){
-		printf("Cannot connect to queue\n");
+		perror("Cannot connect to queue\n");
 		exit(1);
 	}
+
+	zmq_setsockopt(subscriber,ZMQ_SUBSCRIBE, "", 0);
 
 	pipe(fd);
 
@@ -43,46 +42,35 @@ int main()
 		close(fd[0]);
 		FILE *fp = fdopen(fd[1], "w");
 
-		//strcpy(input_str, "set term x11");
-		//printf("input_str: %s\n",input_str);
-		//write(fd[1], input_str, strlen(input_str));
 		fprintf(fp, "%s", "set term x11\n");
 		fflush(fp);
 
 		char line[MESSAGE_SIZE];
 		while(1){
-			printf("Waiting....\n");
 			zmq_recv(subscriber, line,MESSAGE_SIZE , 0);
 
 			char converted[MESSAGE_SIZE];
-			printf("Recevied: %s\n", line);
 			length = adapter_csv_to_plot(line,converted);
 			deq.push_back(std::string(converted));
 			if(deq.size() > 20){
 				deq.pop_front();
 			}
 
-			strcpy(input_str, "plot '-' with linespoints\n");
-			//write(fd[1], input_str, strlen(input_str));
-			fprintf(fp, "%s", input_str);
+			fprintf(fp, "%s", "plot '-' with linespoints\n");
 
 			for(i = 0; i < deq.size(); i++){
-				printf("%s\n", deq.at(i).c_str());
-				sprintf(input_str, "%s\n", deq.at(i).c_str());
-				//write(fd[1], input_str, strlen(input_str));
-				fprintf(fp, "%s", input_str);
+				fprintf(fp, "%s", deq.at(i).c_str());
 			}
-			strcpy(input_str, "e\n");
-			fprintf(fp, "%s", input_str);
-			//write(fd[1], input_str, strlen(input_str));
+			fprintf(fp,"e\n");
 			fflush(fp);
 		}
 	}else{					//Child
 		close(fd[1]);
 		dup2(fd[0],STDIN_FILENO);
 		close(fd[0]);
-		execv("/usr/bin/gnuplot", options);
-		printf("Execv failed!\n");
+		char* options[] = {(char*)"/usr/bin/gnuplot", (char*) 0};
+		execv(options[0], options);
+		perror("Execv failed!\n");
 		exit(1);
 
 	}
@@ -96,20 +84,22 @@ int adapter_csv_to_plot(char* line, char* converted){
 	time_t t;
 	struct tm *time_info;
 	char* token;
+	std::stringstream ss(line);
 
-	token = strtok(line, ",");
-	token = strtok(line, NULL);
-	t = atoi(strtok(line, NULL));
-	
+	ss.getline(line, MESSAGE_SIZE, ',');
+	ss >> free_mem;
+	ss.getline(line, MESSAGE_SIZE, ',');
+	ss >> seconds;
+
+	t = seconds;
+
 	time_info = gmtime(&t);
 
 	seconds = time_info->tm_hour*3600+time_info->tm_min*60+time_info->tm_sec;
 
-	sprintf(converted, "%s %d\n\0", free_mem, seconds);
+	sprintf(converted, "%ld %i\n\0", seconds, free_mem);
 
 	length = strlen(converted);
-
-	seconds = time(NULL)/3600;
 
 	return length;
 }
