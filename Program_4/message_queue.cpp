@@ -1,12 +1,17 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
 #include <zmq.h>
+#include <time.h>
 
-int main()
+int main(void)
 {
 	void *context = zmq_ctx_new();
-	void *publisher = zmq_socket (context, ZMQ_XPUB);
-	void *subscriber = zmq_socket (context, ZMQ_XSUB);
-	zmq_bind(publisher, "tcp://localhost:4444");
-	zmq_bind(subscriber, "tcp://localhost:5555");
-	zmq_proxy(subscriber, publisher, NULL);	
+	void *backend = zmq_socket (context, ZMQ_XPUB);
+	void *frontend = zmq_socket (context, ZMQ_XSUB);
+	zmq_bind(backend, "tcp://*:4444");
+	zmq_bind(frontend, "tcp://*:5555");
+	zmq_proxy(frontend, backend, NULL);	
 	return 0;
 }

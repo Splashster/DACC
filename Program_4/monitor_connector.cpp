@@ -18,10 +18,10 @@ int main()
 	int rc;
 	int i = 0;
 	char* input_str;
-	char line[MESSAGE_SIZE];
-	char* converted;
+	
+	
 	size_t length = 0;
-	char *const options[] = {NULL};
+	char *const options[] = {0};
 
 	std::deque<std::string> deq;
 
@@ -30,7 +30,10 @@ int main()
 	pid_t process;
 
 	rc = zmq_connect(subscriber, "tcp://localhost:5555");
-	assert(rc == 0);
+	if(rc == -1){
+		printf("Cannot connect to queue\n");
+		exit(1);
+	}
 
 	if(pipe(fd) < 0){
 		printf("Problem with pipe\n");
@@ -49,35 +52,45 @@ int main()
 		close(fd[0]);
 		FILE *fp = fdopen(fd[1], "w");
 
-		strcpy(input_str, "set term x11");
-		write(fd[1], input_str, strlen(input_str));
+		//strcpy(input_str, "set term x11");
+		//printf("input_str: %s\n",input_str);
+		//write(fd[1], input_str, strlen(input_str));
+		fprintf(fp, "%s", "set term x11\n");
 		fflush(fp);
 
+		char line[MESSAGE_SIZE];
 		while(1){
-			zmq_recv(subscriber, &line,MESSAGE_SIZE , 0);
+			printf("Waiting....\n");
+			int count = zmq_recv(subscriber, line,MESSAGE_SIZE , 0);
+			if (count <= 0) {continue;}
+			char converted[MESSAGE_SIZE];
+			printf("Recevied: %s\n", line);
 			length = adapter_csv_to_plot(line,converted);
-			deq.push_back(converted);
+			deq.push_back(std::string(converted));
 			if(deq.size() > 20){
 				deq.pop_front();
 			}
 
 			strcpy(input_str, "plot '-' with linespoints\n");
-			write(fd[1], input_str, strlen(input_str));
+			//write(fd[1], input_str, strlen(input_str));
+			fprintf(fp, "%s", input_str);
 
 			for(i = 0; i < deq.size(); i++){
 				printf("%s\n", deq.at(i).c_str());
 				sprintf(input_str, "%s\n", deq.at(i).c_str());
-				write(fd[1], input_str, strlen(input_str));
+				//write(fd[1], input_str, strlen(input_str));
+				fprintf(fp, "%s", input_str);
 			}
 			strcpy(input_str, "e\n");
-			write(fd[1], input_str, strlen(input_str));
+			fprintf(fp, "%s", input_str);
+			//write(fd[1], input_str, strlen(input_str));
 			fflush(fp);
 		}
 	}else{					//Child
 		close(fd[1]);
 		dup2(fd[0],STDIN_FILENO);
 		close(fd[0]);
-		execv("gnuplot", options);
+		execv("/usr/bin/gnuplot", options);
 		printf("Execv failed!\n");
 		exit(1);
 
