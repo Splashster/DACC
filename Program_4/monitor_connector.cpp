@@ -5,7 +5,6 @@
 #include <string>
 #include <zmq.h>
 #include <time.h>
-#include <assert.h>
 #include <deque>
 
 #define MESSAGE_SIZE 2048
@@ -36,7 +35,7 @@ int main()
 	}
 
 	pipe(fd);
-	
+
 	process = fork();
 
 	//Parent
@@ -53,7 +52,7 @@ int main()
 		char line[MESSAGE_SIZE];
 		while(1){
 			printf("Waiting....\n");
-			int count = zmq_recv(subscriber, line,MESSAGE_SIZE , 0);
+			zmq_recv(subscriber, line,MESSAGE_SIZE , 0);
 
 			char converted[MESSAGE_SIZE];
 			printf("Recevied: %s\n", line);
