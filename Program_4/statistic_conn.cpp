@@ -39,7 +39,7 @@ int main()
 		while(fgets(line, MESSAGE_SIZE, fp)){
 			char converted[MESSAGE_SIZE];
 			length = adapter_vmstat_to_csv(line, converted);
-			printf("converted: %s\n", converted);
+			printf(" %s", converted);
 			zmq_send(publisher, converted, length+1, 0);
 		}
 	}else{ 								//Child
