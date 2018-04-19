@@ -10,7 +10,7 @@
 
 #define MESSAGE_SIZE 2048
 
-size_t adapter_csv_to_plot(char*, char*);
+int adapter_csv_to_plot(char*, char*);
 
 int main()
 {
@@ -20,8 +20,8 @@ int main()
 	char* input_str;
 	
 	
-	size_t length = 0;
-	char *const options[] = {0};
+	int length = 0;
+	char* options[] = {(char*) 0};
 
 	std::deque<std::string> deq;
 
@@ -35,17 +35,9 @@ int main()
 		exit(1);
 	}
 
-	if(pipe(fd) < 0){
-		printf("Problem with pipe\n");
-		exit(1);
-	}
-
+	pipe(fd);
+	
 	process = fork();
-
-	if(process < 0){
-		printf("Fork Failed\n");
-		exit(1);
-	}
 
 	//Parent
 	if(process > 0){
@@ -62,7 +54,7 @@ int main()
 		while(1){
 			printf("Waiting....\n");
 			int count = zmq_recv(subscriber, line,MESSAGE_SIZE , 0);
-			if (count <= 0) {continue;}
+
 			char converted[MESSAGE_SIZE];
 			printf("Recevied: %s\n", line);
 			length = adapter_csv_to_plot(line,converted);
@@ -98,7 +90,7 @@ int main()
 
 }
 
-size_t adapter_csv_to_plot(char* line, char* converted){
+int adapter_csv_to_plot(char* line, char* converted){
 	int length = 0;
 	int free_mem = 0;
 	int seconds = 0;

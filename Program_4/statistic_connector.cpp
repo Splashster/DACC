@@ -2,13 +2,14 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <sys/types.h>
 #include <zmq.h>
 #include <time.h>
 
 
 #define MESSAGE_SIZE 1024
 
-size_t adapter_vmstat_to_csv(char* , char*);
+int adapter_vmstat_to_csv(char* , char*);
 int free_memParser(char*);
 
 int main()
@@ -16,25 +17,16 @@ int main()
 	int fd[2];
 	int rc;
 	
-	size_t length = 0;
-	char *options[] = {"2", "-n", 0};
+	int length = 0;
+	//char *options[] = ;
 	pid_t process;
 
 	void *context = zmq_ctx_new();
 	void *publisher = zmq_socket (context, ZMQ_PUB);
 	rc = zmq_connect(publisher, "tcp://localhost:4444");
 
-	if(pipe(fd) < 0){
-		printf("Problem with pipe\n");
-		exit(1);
-	}
-
+	pipe(fd);
 	process = fork();
-
-	if(process < 0){
-		printf("Fork Failed\n");
-		exit(1);
-	}
 
 	//Parent
 	if(process > 0){
@@ -47,8 +39,7 @@ int main()
 		fgets(line, MESSAGE_SIZE, fp);
 		fgets(line, MESSAGE_SIZE, fp);
 
-		while(1){
-			fgets(line, MESSAGE_SIZE, fp);
+		while(fgets(line, MESSAGE_SIZE, fp)){
 			char converted[MESSAGE_SIZE];
 			length = adapter_vmstat_to_csv(line, converted);
 			printf("converted: %s\n", converted);
@@ -60,7 +51,8 @@ int main()
 		close(fd[0]);
 		dup2(fd[1],STDOUT_FILENO);
 		close(fd[1]);
-		execv("/usr/bin/vmstat", options);
+		char* args[] = {(char*) "2", (char*) "-n", NULL};
+		execv("/usr/bin/vmstat", args);
 		printf("Execv failed!\n");
 		exit(1);
 
@@ -68,7 +60,7 @@ int main()
 
 }
 
-size_t adapter_vmstat_to_csv(char* line, char* converted){
+int adapter_vmstat_to_csv(char* line, char* converted){
 	int length = 0;
 	int free_mem = 0;
 	time_t seconds;
