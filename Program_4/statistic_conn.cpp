@@ -1,3 +1,8 @@
+/***************************************************************
+The statistic_connector gets and sends the total amount of
+free memory and the current time to the message queue.
+***************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -27,8 +32,8 @@ int main()
 	pipe(fd);
 	process = fork();
 
-	//Parent
-	if(process > 0){
+
+	if(process > 0){      //Parent
 		close(fd[1]);
 		FILE *fp = fdopen(fd[0], "r");
 		char line[MESSAGE_SIZE];
@@ -50,9 +55,7 @@ int main()
 		execv(args[0], args);
 		perror("Execv failed!\n");
 		exit(1);
-
 	}
-
 }
 
 int adapter_vmstat_to_csv(char* line, char* converted){
@@ -61,9 +64,7 @@ int adapter_vmstat_to_csv(char* line, char* converted){
 	time_t seconds;
 
 	seconds = time(NULL);
-
 	free_mem = free_memParser(line);
-
 	sprintf(converted, "1,%i,%ld\n\0",free_mem,seconds);
 
 	length = strlen(converted);

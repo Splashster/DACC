@@ -1,4 +1,4 @@
-# Makefile for compiling a C++ program
+# Makefile for compiling ini ESB program
 CC=g++
 CFLAGS= -g
 LDFLAGS=-g -lzmq
@@ -28,11 +28,11 @@ run_stats:
 
 killall: kill_stat kill_queue kill_monitor
 kill_stat:
-	pkill $(STATS)
+	-pkill $(STATS)
 kill_queue:
-	pkill $(MESSAGE_QUEUE)
+	-pkill $(MESSAGE_QUEUE)
 kill_monitor:
-	pkill $(MONITOR)
+	-pkill $(MONITOR)
 
 
 .PHONY: clean depend

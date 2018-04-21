@@ -1,3 +1,9 @@
+/***************************************************************
+The message_queue program acts as a bridge between the statistic_connector
+and the monitor_connector and gives them the ability to send and receive
+messages to each other.
+***************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>

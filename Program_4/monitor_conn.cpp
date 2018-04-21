@@ -1,3 +1,8 @@
+/***************************************************************
+The monitor_connector plots and displays the total amount of
+free memory and the current time.
+***************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -18,7 +23,7 @@ int main()
 	int rc;
 	int i = 0;
 	int length = 0;
-	
+
 	std::deque<std::string> deq;
 
 	void *context = zmq_ctx_new();
@@ -37,8 +42,8 @@ int main()
 
 	process = fork();
 
-	//Parent
-	if(process > 0){
+
+	if(process > 0){     //Parent
 		close(fd[0]);
 		FILE *fp = fdopen(fd[1], "w");
 
